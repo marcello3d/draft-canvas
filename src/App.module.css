@@ -1,0 +1,36 @@
+.root {
+  background: white;
+  margin: 10px;
+}
+.main {
+  display: flex;
+  flex-direction: row;
+}
+.editor {
+  font-size: 3px;
+  text-align: center;
+  color: black;
+}
+
+.canvas {
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.editorWrapper {
+  border: solid 1px #888;
+  padding: 0;
+  position: relative;
+  width: 500px;
+  height: 300px;
+  overflow: hidden;
+}
+.editorWrapper > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
