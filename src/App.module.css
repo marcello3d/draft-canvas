@@ -7,15 +7,21 @@
   flex-direction: row;
 }
 .editor {
-  font-size: 3px;
+  font-size: 60px;
   text-align: center;
-  color: black;
+  color: rgba(0,0,0,0);
+  caret-color: blue;
+}
+::selection {
+  background-color: #a1aeff;
+}
+.showOverlap {
+  color: rgba(255,0,0,0.8);
 }
 
 .canvas {
   overflow: hidden;
   pointer-events: none;
-  opacity: 0.5;
   z-index: 1;
 }
 

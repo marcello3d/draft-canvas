@@ -10,9 +10,11 @@
     "@types/node": "^12.0.0",
     "@types/react": "^16.9.0",
     "@types/react-dom": "^16.9.0",
+    "classnames": "2.2.6",
     "draft-js": "0.11.7",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-draft-wysiwyg": "1.14.5",
     "react-scripts": "3.4.3",
     "typescript": "~3.7.2"
   },
@@ -38,7 +40,9 @@
     ]
   },
   "devDependencies": {
+    "@types/classnames": "2.2.10",
     "@types/draft-js": "0.10.44",
+    "@types/react-draft-wysiwyg": "1.13.0",
     "prettier": "2.1.1"
   }
 }

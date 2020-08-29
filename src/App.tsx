@@ -1,29 +1,17 @@
-import React, {
-  memo,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import styles from './App.module.css';
-import { ContentState, Editor, EditorState } from 'draft-js';
+import {
+  ContentState,
+  DraftEditorCommand,
+  Editor,
+  EditorState,
+  RichUtils,
+} from 'draft-js';
 import 'draft-js/dist/Draft.css';
-
-type Layout = {
-  width: number;
-  height: number;
-  lines: Line[];
-};
-type Line = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  text: string;
-};
-
-const cssFont = 'italic 300 80px "Marker Felt"';
+import { LayoutCanvas } from './layout/LayoutCanvas';
+import { computeLayout, Layout } from './layout/layout';
+import { useCheckboxChange } from './useCheckboxChange';
+import classNames from 'classnames';
 
 export default function App() {
   const [editorState, setEditorState] = React.useState(() =>
@@ -34,148 +22,104 @@ export default function App() {
     ),
   );
 
+  const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
+  const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(false);
+  const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
+
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout | undefined>();
-  useLayoutEffect(() => {
-    if (editorRef.current) {
-      const layout = computeLayout(editorRef.current);
-      setLayout(layout);
-      console.log(`layout: ${JSON.stringify(layout, undefined, 2)}`);
-    }
-  }, [content]);
 
-  const editorStyle = useMemo(
-    () => ({
-      font: cssFont,
-    }),
+  const handleKeyCommand = useCallback(
+    (command: DraftEditorCommand, editorState: EditorState) => {
+      const newState = RichUtils.handleKeyCommand(editorState, command);
+
+      if (newState) {
+        setEditorState(newState);
+        return 'handled';
+      }
+
+      return 'not-handled';
+    },
     [],
   );
+
+  useLayoutEffect(() => {
+    if (editorRef.current) {
+      setLayout(computeLayout(editorRef.current, characterLevel));
+    }
+  }, [characterLevel, content]);
 
   return (
     <div className={styles.root}>
       <h2>DraftJS + Canvas2D demo</h2>
-      <p>Type in the left-hand side and see the canvas rendered on right.</p>
+      <ul>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={characterLevel}
+              onChange={onChangeCharacterLevel}
+            />
+            Character-level layout
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={showTextEditor}
+              onChange={onChangeShowOverlap}
+            />
+            Show DraftJS editor
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={showOutlines}
+              onChange={onChangeShowOutlines}
+            />
+            Show outlines
+          </label>
+        </li>
+      </ul>
+      <p>
+        Type in the left-hand side and see a second canvas rendered on right.
+        Keyboard shortcuts for bold and italic should work.
+      </p>
       <div className={styles.main}>
         <div className={styles.editorWrapper}>
-          <div ref={editorRef} className={styles.editor} style={editorStyle}>
+          {layout && (
+            <LayoutCanvas showOutlines={showOutlines} layout={layout} />
+          )}
+          <div
+            ref={editorRef}
+            className={classNames(styles.editor, {
+              [styles.showOverlap]: showTextEditor,
+            })}
+          >
             <Editor
               editorState={editorState}
+              handleKeyCommand={handleKeyCommand}
               onChange={setEditorState}
               textAlignment="center"
             />
           </div>
-          {layout && <LayoutCanvas layout={layout} />}
         </div>
-        {layout && <LayoutCanvas layout={layout} />}
+        {layout && <LayoutCanvas showOutlines={showOutlines} layout={layout} />}
       </div>
+      <p>
+        <a href="https://github.com/marcello3d/draft-canvas">
+          Source code on Github
+        </a>
+      </p>
     </div>
   );
 }
 
-const LayoutCanvas = memo(function LayoutCanvas({
-  layout: { width, height, lines },
-}: {
-  layout: Layout;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    canvas.width = width * window.devicePixelRatio;
-    canvas.height = height * window.devicePixelRatio;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    ctx.font = cssFont;
-    ctx.textBaseline = 'bottom';
-    ctx.fillStyle = 'red';
-    for (const { text, x, y, width, height } of lines) {
-      ctx.fillText(text, x, y + height);
-    }
-  }, [width, height, lines]);
-  const style = useMemo(
-    () => ({
-      width: `${width}px`,
-      height: `${height}px`,
-    }),
-    [height, width],
-  );
-  return (
-    <canvas
-      className={styles.canvas}
-      style={style}
-      ref={canvasRef}
-      width={width}
-      height={height}
-    />
-  );
-});
-
-function computeLayout(div: HTMLDivElement): Layout | undefined {
-  const spans = div.querySelectorAll('span[data-text]');
-  const lines: Line[] = [];
-  const bounds = div
-    // .querySelector('div[data-contents]')!
-    .getBoundingClientRect();
-  const offsetX = bounds.x;
-  const offsetY = bounds.y;
-  for (const span of Array.from(spans)) {
-    const spanText = span.textContent;
-    if (spanText === null) {
-      console.warn(`TEXT is NULL`);
-      continue;
-    }
-    for (const rect of Array.from(span.getClientRects())) {
-      const cp1 = caret(rect.left + 1, rect.top + 1);
-      const cp2 = caret(rect.right + 1, rect.top + 1);
-      if (
-        !(
-          cp1?.offsetNode.parentNode === span &&
-          cp2?.offsetNode.parentNode === span
-        )
-      ) {
-        console.warn(`     span mismatch!!!`);
-        continue;
-      }
-      const text = spanText.slice(cp1.offset, cp2.offset);
-      lines.push({
-        x: rect.x - offsetX,
-        y: rect.y - offsetY,
-        width: rect.width,
-        height: rect.height,
-        text,
-      });
-    }
-  }
-  return {
-    width: div.offsetWidth,
-    height: div.offsetHeight,
-    lines,
-  };
-}
-
-type SimpleCaret = {
+export type SimpleCaret = {
   readonly offsetNode: Node;
   readonly offset: number;
 };
-
-function caret(x: number, y: number): SimpleCaret | undefined {
-  if (document.caretPositionFromPoint) {
-    return document.caretPositionFromPoint(x, y) || undefined;
-  }
-  if (document.caretRangeFromPoint) {
-    const range = document.caretRangeFromPoint(x, y);
-    return range
-      ? {
-          offsetNode: range.startContainer,
-          offset: range.startOffset,
-        }
-      : undefined;
-  }
-  return undefined;
-}
