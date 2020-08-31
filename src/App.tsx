@@ -118,8 +118,3 @@ export default function App() {
     </div>
   );
 }
-
-export type SimpleCaret = {
-  readonly offsetNode: Node;
-  readonly offset: number;
-};

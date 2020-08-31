@@ -1,4 +1,7 @@
-import { SimpleCaret } from '../App';
+export type SimpleCaret = {
+  readonly offsetNode: Node;
+  readonly offset: number;
+};
 
 export function caret(x: number, y: number): SimpleCaret | undefined {
   if (document.caretPositionFromPoint) {
