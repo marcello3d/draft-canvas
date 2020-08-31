@@ -46,9 +46,10 @@ export default function App() {
 
   useLayoutEffect(() => {
     if (editorRef.current) {
+      console.log(`do layout`);
       setLayout(computeLayout(editorRef.current, characterLevel));
     }
-  }, [characterLevel, content]);
+  }, [characterLevel, editorState]);
 
   return (
     <div className={styles.root}>
@@ -104,7 +105,6 @@ export default function App() {
               editorState={editorState}
               handleKeyCommand={handleKeyCommand}
               onChange={setEditorState}
-              textAlignment="center"
             />
           </div>
         </div>

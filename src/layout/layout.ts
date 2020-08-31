@@ -6,10 +6,10 @@ export type Layout = {
   lines: Line[];
 };
 type Line = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
   font?: string;
   text: string;
 };
@@ -37,18 +37,28 @@ export function computeLayout(
       const range = document.createRange();
       const points = Array.from(spanText);
       let i = 0;
+      let last: Line | undefined;
       for (const text of points) {
         range.setStart(textNode, i);
         range.setEnd(textNode, (i += text.length));
-        const rect = range.getBoundingClientRect();
-        lines.push({
-          x: rect.x - offsetX,
-          y: rect.y - offsetY,
-          width: rect.width,
-          height: rect.height,
-          font: font || undefined,
-          text,
-        });
+        if (/\s+/.test(text)) {
+          last = undefined;
+          continue;
+        }
+        const rect =
+          Array.from(range.getClientRects()).find(({ width }) => width > 0) ??
+          range.getBoundingClientRect();
+        const top = rect.top - offsetY;
+        const right = rect.right - offsetX;
+        const bottom = rect.bottom - offsetY;
+        const left = rect.left - offsetX;
+        if (last && last.top === top && last.bottom === bottom) {
+          last.right = right;
+          last.text += text;
+        } else {
+          last = { top, right, bottom, left, font: font || undefined, text };
+          lines.push(last);
+        }
       }
     } else {
       for (const rect of Array.from(span.getClientRects())) {
@@ -59,17 +69,15 @@ export function computeLayout(
           continue;
         }
         const text = spanText.slice(cp1.offset, cp2.offset);
-        lines.push({
-          x: rect.x - offsetX,
-          y: rect.y - offsetY,
-          width: rect.width,
-          height: rect.height,
-          font: font || undefined,
-          text,
-        });
+        const top = rect.top - offsetY;
+        const right = rect.right - offsetX;
+        const bottom = rect.bottom - offsetY;
+        const left = rect.left - offsetX;
+        lines.push({ top, right, bottom, left, font: font || undefined, text });
       }
     }
   }
+  console.log(JSON.stringify(lines, undefined, 2));
   return {
     width: div.offsetWidth,
     height: div.offsetHeight,

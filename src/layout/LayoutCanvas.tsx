@@ -24,16 +24,23 @@ export const LayoutCanvas = memo(function LayoutCanvas({
       return;
     }
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    ctx.textBaseline = 'bottom';
-    ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+    ctx.textBaseline = 'ideographic';
+    ctx.strokeStyle = 'rgba(255,0,0,0.2)';
     ctx.fillStyle = 'black';
     ctx.lineWidth = 1 / window.devicePixelRatio;
-    for (const { text, x, y, font = defaultFont, width, height } of lines) {
+    for (const {
+      text,
+      top,
+      left,
+      bottom,
+      right,
+      font = defaultFont,
+    } of lines) {
       ctx.font = font;
       if (showOutlines) {
-        ctx.strokeRect(x, y, width, height);
+        ctx.strokeRect(left, top, right - left, bottom - top);
       }
-      ctx.fillText(text, x, y + height);
+      ctx.fillText(text, left, bottom);
     }
   }, [width, height, lines, defaultFont, showOutlines]);
   const style = useMemo(
