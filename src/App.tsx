@@ -10,6 +10,7 @@ import {
 import 'draft-js/dist/Draft.css';
 import { LayoutCanvas } from './layout/LayoutCanvas';
 import { computeLayout, Layout } from './layout/layout';
+import { Html2CanvasRenderer } from './layout/Html2CanvasRenderer';
 import { useCheckboxChange } from './useCheckboxChange';
 import classNames from 'classnames';
 
@@ -25,6 +26,7 @@ export default function App() {
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(false);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
+  const [useHtml2Canvas, onChangeUseHtml2Canvas] = useCheckboxChange(true);
 
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export default function App() {
 
   return (
     <div className={styles.root}>
-      <h2>DraftJS + Canvas2D demo</h2>
+      <h2>DraftJS + Canvas demo (Canvas2D & html2canvas)</h2>
       <ul>
         <li>
           <label>
@@ -85,15 +87,35 @@ export default function App() {
             Show outlines
           </label>
         </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              checked={useHtml2Canvas}
+              onChange={onChangeUseHtml2Canvas}
+            />
+            Use html2canvas (instead of Canvas2D)
+          </label>
+        </li>
       </ul>
       <p>
         Type in the left-hand side and see a second canvas rendered on right.
         Keyboard shortcuts for bold and italic should work.
       </p>
       <div className={styles.main}>
-        <div className={styles.editorWrapper}>
-          {layout && (
-            <LayoutCanvas showOutlines={showOutlines} layout={layout} />
+        <div className={styles.editorWrapper} id="editor-wrapper-left">
+          {useHtml2Canvas ? (
+            <Html2CanvasRenderer
+              sourceElement={editorRef.current}
+              showOutlines={showOutlines}
+              refreshTrigger={editorState}
+              width={layout?.width}
+              height={layout?.height}
+            />
+          ) : (
+            layout && (
+              <LayoutCanvas showOutlines={showOutlines} layout={layout} />
+            )
           )}
           <div
             ref={editorRef}
@@ -101,6 +123,7 @@ export default function App() {
               [styles.showOverlap]: showTextEditor,
             })}
           >
+            {/* @ts-ignore - Draft.js type issue with React 18 */}
             <Editor
               editorState={editorState}
               handleKeyCommand={handleKeyCommand}
@@ -108,7 +131,17 @@ export default function App() {
             />
           </div>
         </div>
-        {layout && <LayoutCanvas showOutlines={showOutlines} layout={layout} />}
+        {useHtml2Canvas ? (
+          <Html2CanvasRenderer
+            sourceElement={editorRef.current}
+            showOutlines={showOutlines}
+            refreshTrigger={editorState}
+            width={layout?.width}
+            height={layout?.height}
+          />
+        ) : (
+          layout && <LayoutCanvas showOutlines={showOutlines} layout={layout} />
+        )}
       </div>
       <p>
         <a href="https://github.com/marcello3d/draft-canvas">
