@@ -123,6 +123,7 @@ export default function App() {
               [styles.showOverlap]: showTextEditor,
             })}
           >
+            {/* @ts-ignore - Draft.js type issue with React 18 */}
             <Editor
               editorState={editorState}
               handleKeyCommand={handleKeyCommand}
