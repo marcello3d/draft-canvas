@@ -3,29 +3,35 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "@types/jest": "^24.0.0",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.9.0",
-    "@types/react-dom": "^16.9.0",
-    "classnames": "2.2.6",
+    "@testing-library/jest-dom": "^6.6.4",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/html2canvas": "^1.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.2.1",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "classnames": "2.5.1",
     "draft-js": "0.11.7",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-draft-wysiwyg": "1.14.5",
-    "react-scripts": "3.4.3",
-    "typescript": "~3.7.2"
+    "html2canvas": "^1.4.1",
+    "immutable": "4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-draft-wysiwyg": "1.15.0",
+    "react-scripts": "5.0.1",
+    "typescript": "~5.9.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
+    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "react-app"
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [
@@ -40,9 +46,9 @@
     ]
   },
   "devDependencies": {
-    "@types/classnames": "2.2.10",
-    "@types/draft-js": "0.10.44",
-    "@types/react-draft-wysiwyg": "1.13.0",
-    "prettier": "2.1.1"
+    "@types/classnames": "2.3.4",
+    "@types/draft-js": "0.11.18",
+    "@types/react-draft-wysiwyg": "1.13.8",
+    "prettier": "3.6.2"
   }
 }
