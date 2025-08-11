@@ -34,7 +34,32 @@ export default function App() {
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout | undefined>();
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   const plainText = content.getPlainText();
+  
+  // Load all Roboto font variants using FontFace API
+  React.useEffect(() => {
+    const loadFonts = async () => {
+      const fonts = [
+        new FontFace('Roboto', 'url(/Roboto/Roboto-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace('Roboto', 'url(/Roboto/Roboto-Bold.ttf)', { weight: '700', style: 'normal' }),
+        new FontFace('Roboto', 'url(/Roboto/Roboto-Italic.ttf)', { weight: '400', style: 'italic' }),
+        new FontFace('Roboto', 'url(/Roboto/Roboto-BoldItalic.ttf)', { weight: '700', style: 'italic' }),
+      ];
+      
+      try {
+        const loadedFonts = await Promise.all(fonts.map(font => font.load()));
+        loadedFonts.forEach(font => document.fonts.add(font));
+        console.log('All Roboto fonts loaded successfully');
+        setFontsLoaded(true);
+      } catch (error) {
+        console.error('Error loading fonts:', error);
+        setFontsLoaded(true); // Continue even if fonts fail to load
+      }
+    };
+    
+    loadFonts();
+  }, []);
 
   const handleKeyCommand = useCallback(
     (command: DraftEditorCommand, editorState: EditorState) => {
@@ -51,7 +76,7 @@ export default function App() {
   );
 
   useLayoutEffect(() => {
-    if (editorRef.current) {
+    if (editorRef.current && fontsLoaded) {
       if (layoutMethod === 'dom' || layoutMethod === 'html2canvas') {
         const startTime = performance.now();
         console.log(`do layout`);
@@ -71,8 +96,16 @@ export default function App() {
         setLayout({ width, height, lines: [] });
       }
     }
-  }, [characterLevel, editorState, layoutMethod]);
+  }, [characterLevel, editorState, layoutMethod, fontsLoaded]);
 
+  if (!fontsLoaded) {
+    return (
+      <div className={styles.root}>
+        <h2>Loading fonts...</h2>
+      </div>
+    );
+  }
+  
   return (
     <div className={styles.root}>
       <h2>DraftJS + Canvas demo (Canvas2D & html2canvas)</h2>

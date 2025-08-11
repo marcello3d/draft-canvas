@@ -190,9 +190,11 @@ export async function computeTextkitLayout(
       // Each paragraph is an array of lines (AttributedString[])
       for (const line of paragraph) {
         if (line.runs) {
+          let lineX = line.box?.x || 0; // Track X position across runs in this line
+          
           for (const run of line.runs) {
             if (run.positions && run.glyphs) {
-              let currentX = line.box?.x || 0;
+              let currentX = lineX; // Start from accumulated position
               let text = '';
               let startX = currentX;
 
@@ -232,6 +234,9 @@ export async function computeTextkitLayout(
                   font: fontString,
                 });
               }
+              
+              // Update lineX for the next run
+              lineX = currentX;
             }
           }
         }
@@ -303,9 +308,11 @@ export async function computeTextkitLayoutWithPaths(
       // Each paragraph is an array of lines (AttributedString[])
       for (const line of paragraph) {
         if (line.runs) {
+          let lineX = line.box?.x || 0; // Track X position across runs in this line
+          
           for (const run of line.runs) {
             if (run.positions && run.glyphs) {
-              let currentX = line.box?.x || 0;
+              let currentX = lineX; // Start from accumulated position
 
               // Get the font from the run attributes
               // @ts-ignore
@@ -351,6 +358,9 @@ export async function computeTextkitLayoutWithPaths(
                   currentX += position.xAdvance || 0;
                 }
               }
+              
+              // Update lineX for the next run
+              lineX = currentX;
             }
           }
         }
