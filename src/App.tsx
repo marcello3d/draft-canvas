@@ -61,20 +61,25 @@ export default function App() {
   );
 
   useLayoutEffect(() => {
-    if (
-      editorRef.current &&
-      (layoutMethod === 'dom' || layoutMethod === 'html2canvas')
-    ) {
-      const startTime = performance.now();
-      console.log(`do layout`);
-      setLayout(computeLayout(editorRef.current, characterLevel));
-      const endTime = performance.now();
-      console.log(`DOM layout took ${endTime - startTime}ms`);
-    } else if (
-      layoutMethod === 'textkit-text' ||
-      layoutMethod === 'textkit-path'
-    ) {
-      setLayout({ width: 500, height: 300, lines: [] });
+    if (editorRef.current) {
+      if (layoutMethod === 'dom' || layoutMethod === 'html2canvas') {
+        const startTime = performance.now();
+        console.log(`do layout`);
+        setLayout(computeLayout(editorRef.current, characterLevel));
+        const endTime = performance.now();
+        console.log(`DOM layout took ${endTime - startTime}ms`);
+      } else if (
+        layoutMethod === 'textkit-text' ||
+        layoutMethod === 'textkit-path'
+      ) {
+        // Use actual editor dimensions for textkit layout
+        const width = editorRef.current.clientWidth;
+        const height = editorRef.current.clientHeight;
+        
+        console.log('Editor dimensions for textkit:', width, 'x', height);
+        
+        setLayout({ width, height, lines: [] });
+      }
     }
   }, [characterLevel, editorState, layoutMethod]);
 

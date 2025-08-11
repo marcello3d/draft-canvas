@@ -66,7 +66,7 @@ export async function computeTextkitLayout(
     x: 0,
     y: 0,
     width,
-    height,
+    height: Infinity, // Don't limit height to allow natural wrapping
   };
 
   // layoutEngine returns an array of paragraphs
@@ -89,7 +89,6 @@ export async function computeTextkitLayout(
                 const glyph = run.glyphs[i];
                 const position = run.positions[i];
 
-                console.log('glyph', glyph);
                 text += String.fromCodePoint(...glyph.codePoints);
                 currentX += position.xAdvance || 0;
               }
@@ -112,7 +111,8 @@ export async function computeTextkitLayout(
   }
 
   const endTime = performance.now();
-  console.log(`Textkit layout took ${endTime - startTime}ms`, lines);
+  console.log(`Textkit layout took ${endTime - startTime}ms`);
+  console.log('Textkit lines:', lines.map(l => l.text));
 
   return {
     width,
@@ -149,7 +149,7 @@ export async function computeTextkitLayoutWithPaths(
     x: 0,
     y: 0,
     width,
-    height,
+    height: Infinity, // Don't limit height to allow natural wrapping
   };
 
   // layoutEngine returns an array of paragraphs
@@ -179,10 +179,14 @@ export async function computeTextkitLayoutWithPaths(
                   // @ts-ignore
                   const glyphObj = font.getGlyph(glyph.id);
                   if (glyphObj && glyphObj.path) {
+                    // Use position offsets to properly place each glyph
+                    const glyphX = currentX + (position.xOffset || 0);
+                    const glyphY = (line.box?.y || 0) + ascent + (position.yOffset || 0);
+                    
                     glyphPaths.push({
                       path: glyphObj.path.toSVG(),
-                      x: currentX,
-                      y: (line.box?.y || 0) + ascent,
+                      x: glyphX,
+                      y: glyphY,
                       scale: fontSize / font.unitsPerEm,
                     });
                   }
