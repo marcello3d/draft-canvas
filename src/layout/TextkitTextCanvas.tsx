@@ -13,19 +13,20 @@ export const TextkitTextCanvas = React.memo(function TextkitTextCanvas({
   height,
   text,
   showOutlines,
-  defaultFont = '400 60px "Roboto"'
+  defaultFont = '400 60px "Roboto"',
+  editorState
 }: TextkitCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [textkitLayout, setTextkitLayout] = useState<Layout | null>(null);
 
   useEffect(() => {
     const startTime = performance.now();
-    getTextkitTextLayout(text, width, height).then((layout) => {
+    getTextkitTextLayout(text, width, height, editorState).then((layout) => {
       setTextkitLayout(layout);
       const endTime = performance.now();
       console.log(`Textkit text layout total time: ${endTime - startTime}ms`);
     });
-  }, [text, width, height]);
+  }, [text, width, height, editorState]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

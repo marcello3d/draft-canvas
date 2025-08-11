@@ -1,5 +1,6 @@
 import { Layout } from './layout';
 import { computeTextkitLayout, computeTextkitLayoutWithPaths } from './textkitLayout';
+import { EditorState } from 'draft-js';
 
 export interface TextkitCanvasProps {
   width: number;
@@ -7,22 +8,25 @@ export interface TextkitCanvasProps {
   text: string;
   showOutlines: boolean;
   defaultFont?: string;
+  editorState: EditorState;
 }
 
 export async function getTextkitTextLayout(
   text: string,
   width: number,
-  height: number
+  height: number,
+  editorState?: EditorState
 ): Promise<Layout> {
-  return computeTextkitLayout(text, width, height);
+  return computeTextkitLayout(text, width, height, 60, editorState);
 }
 
 export async function getTextkitPathLayout(
   text: string,
   width: number,
-  height: number
+  height: number,
+  editorState?: EditorState
 ): Promise<{ layout: Layout; glyphPaths: any[] }> {
-  return computeTextkitLayoutWithPaths(text, width, height);
+  return computeTextkitLayoutWithPaths(text, width, height, 60, editorState);
 }
 
 export function renderOutlines(

@@ -36,16 +36,6 @@ export default function App() {
   const [layout, setLayout] = useState<Layout | undefined>();
   const plainText = content.getPlainText();
 
-  // Load Roboto font
-  React.useEffect(() => {
-    const loadFonts = async () => {
-      const font = new FontFace('Roboto', 'url(/Roboto/Roboto-Regular.ttf)');
-      await font.load();
-      document.fonts.add(font);
-    };
-    loadFonts();
-  }, []);
-
   const handleKeyCommand = useCallback(
     (command: DraftEditorCommand, editorState: EditorState) => {
       const newState = RichUtils.handleKeyCommand(editorState, command);
@@ -191,6 +181,7 @@ export default function App() {
                 height={layout.height}
                 text={plainText}
                 showOutlines={showOutlines}
+                editorState={editorState}
               />
             )
           ) : layoutMethod === 'textkit-path' ? (
@@ -200,6 +191,7 @@ export default function App() {
                 height={layout.height}
                 text={plainText}
                 showOutlines={showOutlines}
+                editorState={editorState}
               />
             )
           ) : null}
@@ -234,6 +226,7 @@ export default function App() {
               height={layout.height}
               text={plainText}
               showOutlines={showOutlines}
+              editorState={editorState}
             />
           )
         ) : layoutMethod === 'textkit-path' ? (
@@ -243,6 +236,7 @@ export default function App() {
               height={layout.height}
               text={plainText}
               showOutlines={showOutlines}
+              editorState={editorState}
             />
           )
         ) : null}
