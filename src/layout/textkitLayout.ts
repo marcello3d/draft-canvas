@@ -1,27 +1,29 @@
-import createLayoutEngine, { 
-  bidi, 
-  fontSubstitution, 
-  scriptItemizer, 
-  textDecoration, 
-  linebreaker, 
+import createLayoutEngine, {
+  bidi,
+  fontSubstitution,
+  scriptItemizer,
+  textDecoration,
+  linebreaker,
   justification,
   type AttributedString,
   type Container,
-  type Paragraph
+  type Paragraph,
 } from '@react-pdf/textkit';
 import * as fontkit from 'fontkit';
 import { Layout } from './layout';
 
 let robotoFont: any = null;
 
-// Create the layout engine with default engines
+// Create the layout engine without hyphenation
+// We're not including the hyphenationCallback to disable hyphenation
 const layoutEngine = createLayoutEngine({
   bidi,
   fontSubstitution,
   scriptItemizer,
   textDecoration,
   linebreaker,
-  justification
+  justification,
+  // Explicitly no hyphenationCallback to disable hyphenation
 });
 
 async function loadRobotoFont() {
@@ -44,7 +46,7 @@ export async function computeTextkitLayout(
 ): Promise<Layout> {
   const startTime = performance.now();
   const font = await loadRobotoFont();
-  
+
   const attributedString: AttributedString = {
     string: text,
     runs: [
@@ -69,9 +71,9 @@ export async function computeTextkitLayout(
 
   // layoutEngine returns an array of paragraphs
   const paragraphs = layoutEngine(attributedString, container);
-  
+
   const lines: any[] = [];
-  
+
   if (paragraphs && paragraphs.length > 0) {
     for (const paragraph of paragraphs) {
       // Each paragraph is an array of lines (AttributedString[])
@@ -82,19 +84,16 @@ export async function computeTextkitLayout(
               let currentX = line.box?.x || 0;
               let text = '';
               let startX = currentX;
-              
+
               for (let i = 0; i < run.glyphs.length; i++) {
                 const glyph = run.glyphs[i];
                 const position = run.positions[i];
-                
-                // @ts-ignore
-                if (glyph && glyph.string) {
-                  // @ts-ignore
-                  text += glyph.string;
-                  currentX += position.xAdvance || 0;
-                }
+
+                console.log('glyph', glyph);
+                text += String.fromCodePoint(...glyph.codePoints);
+                currentX += position.xAdvance || 0;
               }
-              
+
               if (text.trim()) {
                 lines.push({
                   text,
@@ -111,10 +110,10 @@ export async function computeTextkitLayout(
       }
     }
   }
-  
+
   const endTime = performance.now();
-  console.log(`Textkit layout took ${endTime - startTime}ms`);
-  
+  console.log(`Textkit layout took ${endTime - startTime}ms`, lines);
+
   return {
     width,
     height,
@@ -130,7 +129,7 @@ export async function computeTextkitLayoutWithPaths(
 ): Promise<{ layout: Layout; glyphPaths: any[] }> {
   const startTime = performance.now();
   const font = await loadRobotoFont();
-  
+
   const attributedString: AttributedString = {
     string: text,
     runs: [
@@ -155,10 +154,10 @@ export async function computeTextkitLayoutWithPaths(
 
   // layoutEngine returns an array of paragraphs
   const paragraphs = layoutEngine(attributedString, container);
-  
+
   const lines: any[] = [];
   const glyphPaths: any[] = [];
-  
+
   if (paragraphs && paragraphs.length > 0) {
     for (const paragraph of paragraphs) {
       // Each paragraph is an array of lines (AttributedString[])
@@ -167,14 +166,14 @@ export async function computeTextkitLayoutWithPaths(
           for (const run of line.runs) {
             if (run.positions && run.glyphs) {
               let currentX = line.box?.x || 0;
-              
+
               // Calculate proper ascent from font metrics
               const ascent = (font.ascent / font.unitsPerEm) * fontSize;
-              
+
               for (let i = 0; i < run.glyphs.length; i++) {
                 const glyph = run.glyphs[i];
                 const position = run.positions[i];
-                
+
                 // @ts-ignore
                 if (glyph && glyph.id) {
                   // @ts-ignore
@@ -187,7 +186,7 @@ export async function computeTextkitLayoutWithPaths(
                       scale: fontSize / font.unitsPerEm,
                     });
                   }
-                  
+
                   // @ts-ignore
                   if (glyph.string && glyph.string.trim()) {
                     lines.push({
@@ -196,11 +195,12 @@ export async function computeTextkitLayoutWithPaths(
                       left: currentX,
                       top: line.box?.y || 0,
                       right: currentX + (position.xAdvance || 0),
-                      bottom: (line.box?.y || 0) + (line.box?.height || fontSize),
+                      bottom:
+                        (line.box?.y || 0) + (line.box?.height || fontSize),
                       font: `400 ${fontSize}px "Roboto"`,
                     });
                   }
-                  
+
                   currentX += position.xAdvance || 0;
                 }
               }
@@ -210,10 +210,10 @@ export async function computeTextkitLayoutWithPaths(
       }
     }
   }
-  
+
   const endTime = performance.now();
   console.log(`Textkit layout with paths took ${endTime - startTime}ms`);
-  
+
   return {
     layout: {
       width,

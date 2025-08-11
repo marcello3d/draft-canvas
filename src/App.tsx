@@ -29,7 +29,7 @@ export default function App() {
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
-  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-path');
+  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-text');
 
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
