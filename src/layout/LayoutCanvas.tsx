@@ -4,7 +4,7 @@ import { Layout } from './layout';
 
 export const LayoutCanvas = memo(function LayoutCanvas({
   layout: { width, height, lines },
-  defaultFont = '400 80px "Marker Felt"',
+  defaultFont = '400 60px "Roboto"',
   showOutlines,
 }: {
   defaultFont?: string;
@@ -12,6 +12,7 @@ export const LayoutCanvas = memo(function LayoutCanvas({
   layout: Layout;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -24,10 +25,14 @@ export const LayoutCanvas = memo(function LayoutCanvas({
       return;
     }
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    
+    const startTime = performance.now();
+    
     ctx.textBaseline = 'ideographic';
     ctx.strokeStyle = 'rgba(255,0,0,0.2)';
     ctx.fillStyle = 'black';
     ctx.lineWidth = 1 / window.devicePixelRatio;
+    
     for (const {
       text,
       top,
@@ -42,7 +47,11 @@ export const LayoutCanvas = memo(function LayoutCanvas({
       }
       ctx.fillText(text, left, bottom);
     }
+    
+    const endTime = performance.now();
+    console.log(`Canvas rendering took ${endTime - startTime}ms for DOM layout`);
   }, [width, height, lines, defaultFont, showOutlines]);
+
   const style = useMemo(
     () => ({
       width: `${width}px`,
@@ -50,6 +59,7 @@ export const LayoutCanvas = memo(function LayoutCanvas({
     }),
     [height, width],
   );
+
   return (
     <canvas
       className={styles.canvas}

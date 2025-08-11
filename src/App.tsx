@@ -9,9 +9,12 @@ import {
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { LayoutCanvas } from './layout/LayoutCanvas';
+import { TextkitTextCanvas } from './layout/TextkitTextCanvas';
+import { TextkitPathCanvas } from './layout/TextkitPathCanvas';
 import { computeLayout, Layout } from './layout/layout';
 import { Html2CanvasRenderer } from './layout/Html2CanvasRenderer';
 import { useCheckboxChange } from './useCheckboxChange';
+import { useRadioChange, LayoutMethod } from './useRadioChange';
 import classNames from 'classnames';
 
 export default function App() {
@@ -24,13 +27,24 @@ export default function App() {
   );
 
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
-  const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(false);
+  const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
-  const [useHtml2Canvas, onChangeUseHtml2Canvas] = useCheckboxChange(true);
+  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-path');
 
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout | undefined>();
+  const plainText = content.getPlainText();
+
+  // Load Roboto font
+  React.useEffect(() => {
+    const loadFonts = async () => {
+      const font = new FontFace('Roboto', 'url(/Roboto/Roboto-Regular.ttf)');
+      await font.load();
+      document.fonts.add(font);
+    };
+    loadFonts();
+  }, []);
 
   const handleKeyCommand = useCallback(
     (command: DraftEditorCommand, editorState: EditorState) => {
@@ -47,11 +61,22 @@ export default function App() {
   );
 
   useLayoutEffect(() => {
-    if (editorRef.current) {
+    if (
+      editorRef.current &&
+      (layoutMethod === 'dom' || layoutMethod === 'html2canvas')
+    ) {
+      const startTime = performance.now();
       console.log(`do layout`);
       setLayout(computeLayout(editorRef.current, characterLevel));
+      const endTime = performance.now();
+      console.log(`DOM layout took ${endTime - startTime}ms`);
+    } else if (
+      layoutMethod === 'textkit-text' ||
+      layoutMethod === 'textkit-path'
+    ) {
+      setLayout({ width: 500, height: 300, lines: [] });
     }
-  }, [characterLevel, editorState]);
+  }, [characterLevel, editorState, layoutMethod]);
 
   return (
     <div className={styles.root}>
@@ -88,14 +113,52 @@ export default function App() {
           </label>
         </li>
         <li>
-          <label>
-            <input
-              type="checkbox"
-              checked={useHtml2Canvas}
-              onChange={onChangeUseHtml2Canvas}
-            />
-            Use html2canvas (instead of Canvas2D)
-          </label>
+          <fieldset>
+            <legend>Layout Method:</legend>
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="dom"
+                checked={layoutMethod === 'dom'}
+                onChange={onChangeLayoutMethod}
+              />
+              Custom DOM layout measurement
+            </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="html2canvas"
+                checked={layoutMethod === 'html2canvas'}
+                onChange={onChangeLayoutMethod}
+              />
+              html2canvas
+            </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="textkit-text"
+                checked={layoutMethod === 'textkit-text'}
+                onChange={onChangeLayoutMethod}
+              />
+              textkit + canvas2d text rendering
+            </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="textkit-path"
+                checked={layoutMethod === 'textkit-path'}
+                onChange={onChangeLayoutMethod}
+              />
+              textkit + canvas2d path rendering
+            </label>
+          </fieldset>
         </li>
       </ul>
       <p>
@@ -104,7 +167,7 @@ export default function App() {
       </p>
       <div className={styles.main}>
         <div className={styles.editorWrapper} id="editor-wrapper-left">
-          {useHtml2Canvas ? (
+          {layoutMethod === 'html2canvas' ? (
             <Html2CanvasRenderer
               sourceElement={editorRef.current}
               showOutlines={showOutlines}
@@ -112,11 +175,29 @@ export default function App() {
               width={layout?.width}
               height={layout?.height}
             />
-          ) : (
+          ) : layoutMethod === 'dom' ? (
             layout && (
               <LayoutCanvas showOutlines={showOutlines} layout={layout} />
             )
-          )}
+          ) : layoutMethod === 'textkit-text' ? (
+            layout && (
+              <TextkitTextCanvas
+                width={layout.width}
+                height={layout.height}
+                text={plainText}
+                showOutlines={showOutlines}
+              />
+            )
+          ) : layoutMethod === 'textkit-path' ? (
+            layout && (
+              <TextkitPathCanvas
+                width={layout.width}
+                height={layout.height}
+                text={plainText}
+                showOutlines={showOutlines}
+              />
+            )
+          ) : null}
           <div
             ref={editorRef}
             className={classNames(styles.editor, {
@@ -131,7 +212,7 @@ export default function App() {
             />
           </div>
         </div>
-        {useHtml2Canvas ? (
+        {layoutMethod === 'html2canvas' ? (
           <Html2CanvasRenderer
             sourceElement={editorRef.current}
             showOutlines={showOutlines}
@@ -139,9 +220,27 @@ export default function App() {
             width={layout?.width}
             height={layout?.height}
           />
-        ) : (
+        ) : layoutMethod === 'dom' ? (
           layout && <LayoutCanvas showOutlines={showOutlines} layout={layout} />
-        )}
+        ) : layoutMethod === 'textkit-text' ? (
+          layout && (
+            <TextkitTextCanvas
+              width={layout.width}
+              height={layout.height}
+              text={plainText}
+              showOutlines={showOutlines}
+            />
+          )
+        ) : layoutMethod === 'textkit-path' ? (
+          layout && (
+            <TextkitPathCanvas
+              width={layout.width}
+              height={layout.height}
+              text={plainText}
+              showOutlines={showOutlines}
+            />
+          )
+        ) : null}
       </div>
       <p>
         <a href="https://github.com/marcello3d/draft-canvas">
