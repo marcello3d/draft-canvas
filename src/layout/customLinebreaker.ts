@@ -54,6 +54,59 @@ function isWordBreakPoint(text: string, index: number): boolean {
     return true;
   }
   
+  // Don't break in the middle of emoji ZWJ sequences
+  // Check if we're at or near a ZWJ
+  if (index > 0 && text[index - 1] === '\u200D') {
+    return false; // Don't break right after a ZWJ
+  }
+  if (index < text.length && text[index] === '\u200D') {
+    return false; // Don't break right before a ZWJ
+  }
+  
+  // Don't break between variation selectors and their base
+  if (index > 0) {
+    const currCode = text.charCodeAt(index);
+    if (currCode >= 0xFE00 && currCode <= 0xFE0F) {
+      return false; // Don't break before variation selector
+    }
+  }
+  
+  // Don't break between keycap base and combining keycap
+  if (index < text.length && text[index] === '\u20E3') {
+    return false; // Don't break before combining enclosing keycap
+  }
+  
+  // Don't break between regional indicator symbols (flag emojis)
+  if (index > 0) {
+    const prevCode = text.charCodeAt(index - 1);
+    const currCode = text.charCodeAt(index);
+    
+    // Check for surrogate pairs first
+    if (prevCode >= 0xD800 && prevCode <= 0xDBFF) {
+      if (currCode >= 0xDC00 && currCode <= 0xDFFF) {
+        return false; // We're in the middle of a surrogate pair
+      }
+    }
+    
+    // Check for regional indicators (they form flag emojis in pairs)
+    // Regional indicators are U+1F1E6 to U+1F1FF
+    if (index > 1 && index < text.length) {
+      const prev2 = text.charCodeAt(index - 2);
+      const prev1 = text.charCodeAt(index - 1);
+      const curr = text.charCodeAt(index);
+      const next = index + 1 < text.length ? text.charCodeAt(index + 1) : 0;
+      
+      // Check if previous two chars form a regional indicator
+      if (prev2 >= 0xD83C && prev2 <= 0xD83C && prev1 >= 0xDDE6 && prev1 <= 0xDDFF) {
+        // Previous is a regional indicator
+        if (curr >= 0xD83C && curr <= 0xD83C && next >= 0xDDE6 && next <= 0xDDFF) {
+          // Current is also a regional indicator - don't break between flags
+          return false;
+        }
+      }
+    }
+  }
+  
   // First check CJK breaking rules
   if (!canBreakBetween(text, index)) {
     return false;
@@ -139,88 +192,86 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
         : availableWidths[availableWidths.length - 1];
     };
 
+    // Use grapheme segmenter to properly handle emoji and complex characters
+    const graphemeSegmenter = typeof Intl !== 'undefined' && Intl.Segmenter 
+      ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+      : null;
+    
+    // Convert string to grapheme segments for proper handling
+    const graphemes = graphemeSegmenter 
+      ? Array.from(graphemeSegmenter.segment(string))
+      : string.split('').map((s, i) => ({ segment: s, index: i })); // Fallback to simple split with same structure
+    
+    console.log(`Total graphemes: ${graphemes.length}`);
+    
     let currentPosition = 0;
     let lineIndex = 0;
+    let currentGraphemeIndex = 0;
     
     while (currentPosition < string.length) {
       const maxWidth = getLineWidth(lineIndex);
       let lineEnd = currentPosition;
       let lastBreakPoint = -1;
+      let lastBreakGraphemeIndex = -1;
       let widthAtLastBreak = 0;
       let currentWidth = 0;
       
       console.log(`Line ${lineIndex}: max width = ${maxWidth}, starting at position ${currentPosition}`);
       
-      // Scan forward to find where to break the line
-      // We need to handle multi-codepoint characters like emoji properly
-      let i = currentPosition;
-      while (i < string.length) {
-        const char = string[i];
+      // Scan forward using grapheme segments
+      let graphemeIdx = currentGraphemeIndex;
+      while (graphemeIdx < graphemes.length) {
+        const grapheme = graphemes[graphemeIdx];
+        const segment = grapheme.segment;
+        const segmentStart = grapheme.index;
+        const segmentEnd = segmentStart + segment.length;
         
-        // Check if this is a surrogate pair or emoji sequence
-        let charLength = 1;
-        const code = char.charCodeAt(0);
-        
-        // Check for surrogate pairs (emoji and other Unicode beyond BMP)
-        if (code >= 0xD800 && code <= 0xDBFF && i + 1 < string.length) {
-          const nextCode = string.charCodeAt(i + 1);
-          if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
-            charLength = 2; // Surrogate pair
-          }
+        // Skip if this grapheme is before our current position
+        if (segmentEnd <= currentPosition) {
+          graphemeIdx++;
+          continue;
         }
         
-        // Check for zero-width joiner sequences (complex emoji)
-        if (i + 1 < string.length && string[i + 1] === '\u200D') {
-          // This is part of a ZWJ sequence, skip ahead to find the full sequence
-          let j = i + 2;
-          while (j < string.length) {
-            const c = string.charCodeAt(j);
-            if (c >= 0xD800 && c <= 0xDBFF && j + 1 < string.length) {
-              j += 2; // Skip surrogate pair
-            } else if (string[j] === '\u200D') {
-              j += 1; // Skip ZWJ
-            } else if (c >= 0xFE00 && c <= 0xFE0F) {
-              j += 1; // Skip variation selector
-            } else {
-              break;
-            }
-          }
-          charLength = j - i;
-        }
+        // Get the width of this grapheme
+        // We should only get the width once per grapheme, not per codepoint
+        // Get the width at the start position of the grapheme
+        const graphemeWidth = getGraphemeWidth(attributedString, segmentStart, segmentEnd);
         
-        // Get the width of this character/grapheme from the runs
-        const charWidth = getCharacterWidth(attributedString, i);
-        const newWidth = currentWidth + charWidth;
+        const newWidth = currentWidth + graphemeWidth;
         
-        // Check if adding this non-whitespace character would exceed the line width
+        // Check if adding this grapheme would exceed the line width
         // We only check overflow for non-whitespace characters since trailing spaces get trimmed
-        if (!isWhitespace(char) && newWidth > maxWidth) {
+        if (!isWhitespace(segment) && newWidth > maxWidth) {
           // If we have a previous break point, use it
           if (lastBreakPoint > currentPosition) {
             lineEnd = lastBreakPoint;
             currentWidth = widthAtLastBreak;
+            currentGraphemeIndex = lastBreakGraphemeIndex;
             console.log(`  Breaking at word boundary position ${lastBreakPoint}, width: ${widthAtLastBreak}`);
             break;
-          } else if (i > currentPosition) {
-            // No break point found, break at the previous character
-            lineEnd = i;
-            console.log(`  Forced break at position ${i}, width: ${currentWidth}`);
+          } else if (segmentStart > currentPosition) {
+            // No break point found, break before this grapheme
+            lineEnd = segmentStart;
+            currentGraphemeIndex = graphemeIdx;
+            console.log(`  Forced break at position ${segmentStart}, width: ${currentWidth}`);
             break;
           } else {
-            // Single character doesn't fit, take at least one character
-            lineEnd = i + 1;
-            currentWidth = charWidth;
-            console.log(`  Single char overflow at position ${i}, taking one char`);
+            // Single grapheme doesn't fit, take at least one grapheme
+            lineEnd = segmentEnd;
+            currentWidth = graphemeWidth;
+            currentGraphemeIndex = graphemeIdx + 1;
+            console.log(`  Single grapheme overflow at position ${segmentStart}, taking one grapheme`);
             break;
           }
         }
         
-        // Track valid word break points
-        if (isWordBreakPoint(string, i + 1)) {
-          lastBreakPoint = i + 1;
+        // Track valid word break points (check at grapheme boundaries)
+        if (isWordBreakPoint(string, segmentEnd)) {
+          lastBreakPoint = segmentEnd;
+          lastBreakGraphemeIndex = graphemeIdx + 1;
           // For whitespace breaks, store width without the whitespace
           // For other breaks (like CJK), include the character
-          if (isWhitespace(char)) {
+          if (isWhitespace(segment)) {
             widthAtLastBreak = currentWidth;
           } else {
             widthAtLastBreak = newWidth;
@@ -231,21 +282,22 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
         currentWidth = newWidth;
         
         // Handle explicit line breaks
-        if (char === '\n' || char === '\r') {
-          lineEnd = i + 1;
-          console.log(`  Line break at position ${i}`);
+        if (segment === '\n' || segment === '\r') {
+          lineEnd = segmentEnd;
+          currentGraphemeIndex = graphemeIdx + 1;
+          console.log(`  Line break at position ${segmentStart}`);
           break;
         }
         
         // If we reach the end of the string, take everything
-        if (i + charLength >= string.length) {
+        if (graphemeIdx === graphemes.length - 1) {
           lineEnd = string.length;
-          console.log(`  End of string at position ${i}`);
+          currentGraphemeIndex = graphemes.length;
+          console.log(`  End of string at position ${segmentStart}`);
           break;
         }
         
-        // Move to next character (accounting for multi-codepoint sequences)
-        i += charLength;
+        graphemeIdx++;
       }
       
       // Create the line
@@ -256,12 +308,22 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
       console.log(`  Raw line: "${lineString}"`);
       console.log(`  Trimmed line: "${trimmedLineString}"`);
       
-      const lineRuns = extractRunsForRange(runs, currentPosition, currentPosition + trimmedLineString.length);
+      const lineRuns = extractRunsForRange(runs, currentPosition, currentPosition + trimmedLineString.length, string);
       
       // Calculate the actual width of the trimmed line (without trailing spaces)
+      // Use grapheme segmentation to properly calculate width
       let actualLineWidth = 0;
-      for (let i = currentPosition; i < currentPosition + trimmedLineString.length; i++) {
-        actualLineWidth += getCharacterWidth(attributedString, i);
+      if (graphemeSegmenter) {
+        const lineSegments = Array.from(graphemeSegmenter.segment(trimmedLineString));
+        let charPos = currentPosition;
+        for (const segment of lineSegments) {
+          actualLineWidth += getCharacterWidth(attributedString, charPos);
+          charPos += segment.segment.length;
+        }
+      } else {
+        for (let i = currentPosition; i < currentPosition + trimmedLineString.length; i++) {
+          actualLineWidth += getCharacterWidth(attributedString, i);
+        }
       }
       
       console.log(`  Line content: "${trimmedLineString}", width: ${actualLineWidth}`);
@@ -303,35 +365,86 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
  * like emoji that use surrogate pairs or zero-width joiners
  */
 function getGlyphIndexForPosition(string: string, run: Run, position: number): number {
+  const runStart = run.start || 0;
+  const relativePos = position - runStart;
+  
+  // If we don't have glyph indices, try to map using grapheme segmentation
   if (!run.glyphIndices || !run.glyphs) {
-    return position - (run.start || 0);
+    // Use grapheme segmenter if available to properly handle emoji
+    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+      const runString = string.substring(runStart, run.end);
+      const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+      const segments = Array.from(segmenter.segment(runString));
+      
+      let charIndex = 0;
+      for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        const segmentLength = segment.segment.length;
+        
+        if (relativePos >= charIndex && relativePos < charIndex + segmentLength) {
+          // This position is within this grapheme cluster
+          // Return the glyph index for this grapheme
+          // Assume glyphs correspond to graphemes
+          return Math.min(i, (run.glyphs?.length || 1) - 1);
+        }
+        charIndex += segmentLength;
+      }
+    }
+    
+    // Fallback: simple mapping
+    return Math.min(relativePos, (run.glyphs?.length || 1) - 1);
   }
   
-  const runStart = run.start || 0;
-  const runString = string.substring(runStart, run.end);
+  // We have glyphIndices - use them
+  if (relativePos < run.glyphIndices.length) {
+    return run.glyphIndices[relativePos];
+  }
   
-  // Use grapheme segmenter if available to properly handle emoji
-  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-    const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
-    const segments = Array.from(segmenter.segment(runString));
+  // Fallback
+  return Math.min(relativePos, run.glyphs.length - 1);
+}
+
+function getGraphemeWidth(attributedString: AttributedString, graphemeStart: number, graphemeEnd: number): number {
+  const { runs, string } = attributedString;
+  
+  // Find the run that contains this grapheme
+  for (const run of runs) {
+    const runStart = run.start || 0;
+    const runEnd = run.end || 0;
     
-    let currentPos = runStart;
-    for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      const segmentEnd = currentPos + segment.segment.length;
-      
-      if (position >= currentPos && position < segmentEnd) {
-        // This position is within this grapheme cluster
-        // Return the glyph index for this grapheme
-        return Math.min(i, run.glyphs.length - 1);
+    // Check if the grapheme overlaps with this run
+    if (graphemeStart >= runStart && graphemeStart < runEnd) {
+      // If we have positions (glyph measurements), use them
+      if (run.positions && run.glyphs && run.positions.length > 0) {
+        // For a grapheme, we want to find the glyph that represents it
+        // Use the grapheme start position to find the glyph
+        const glyphIndex = getGlyphIndexForPosition(string, run, graphemeStart);
+        if (glyphIndex < run.positions.length) {
+          return run.positions[glyphIndex].xAdvance || 0;
+        }
       }
-      currentPos = segmentEnd;
+      
+      // If we have xAdvance for the whole run, estimate
+      if (run.xAdvance !== undefined && runEnd > runStart) {
+        // For multi-codepoint graphemes, return the average width times the grapheme length
+        const avgWidth = run.xAdvance / (runEnd - runStart);
+        return avgWidth * (graphemeEnd - graphemeStart);
+      }
+      
+      // Fallback: estimate based on font size
+      const fontSize = run.attributes?.fontSize || 60;
+      // For emoji and special characters, use a larger estimate
+      const grapheme = string.substring(graphemeStart, graphemeEnd);
+      if (grapheme.length > 1) {
+        // Multi-codepoint grapheme (likely emoji)
+        return fontSize; // Full width for emoji
+      }
+      return fontSize * 0.6; // Regular character width
     }
   }
   
-  // Fallback: simple mapping
-  const relativePos = position - runStart;
-  return Math.min(relativePos, (run.glyphs?.length || 1) - 1);
+  // Default fallback
+  return 36;
 }
 
 function getCharacterWidth(attributedString: AttributedString, position: number): number {
@@ -369,10 +482,15 @@ function getCharacterWidth(attributedString: AttributedString, position: number)
 /**
  * Extract runs for a specific range of the string
  */
-function extractRunsForRange(runs: Run[], start: number, end: number): Run[] {
+function extractRunsForRange(runs: Run[], start: number, end: number, string: string): Run[] {
   const result: Run[] = [];
   
   console.log(`  Extracting runs for range [${start}, ${end})`);
+  
+  // Use grapheme segmenter to map character positions to grapheme indices
+  const graphemeSegmenter = typeof Intl !== 'undefined' && Intl.Segmenter 
+    ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+    : null;
   
   for (const run of runs) {
     const runStart = run.start || 0;
@@ -399,37 +517,60 @@ function extractRunsForRange(runs: Run[], start: number, end: number): Run[] {
     
     // If the original run has glyphs and positions, slice them to match the line
     if (run.glyphs && run.positions) {
-      const charStart = overlapStart - runStart;
-      const charEnd = overlapEnd - runStart;
+      // Use grapheme segmentation to properly map character ranges to glyph ranges
+      const runString = string.substring(runStart, runEnd);
+      const graphemes = graphemeSegmenter 
+        ? Array.from(graphemeSegmenter.segment(runString))
+        : runString.split('').map((s, i) => ({ segment: s, index: i }));
       
-      console.log(`    Slicing glyphs for chars [${charStart}, ${charEnd}) from ${run.glyphs.length} glyphs`);
+      // Find grapheme indices for our overlap range
+      let startGraphemeIdx = -1;
+      let endGraphemeIdx = -1;
+      let currentPos = 0;
       
-      // For CJK text, there's usually a 1:1 mapping between characters and glyphs
-      // But we need to handle the general case with ligatures etc.
+      for (let i = 0; i < graphemes.length; i++) {
+        const grapheme = graphemes[i];
+        const segmentLength = grapheme.segment.length;
+        const segmentStart = currentPos;
+        const segmentEnd = currentPos + segmentLength;
+        
+        if (startGraphemeIdx === -1 && segmentEnd > (overlapStart - runStart)) {
+          startGraphemeIdx = i;
+        }
+        if (segmentStart < (overlapEnd - runStart)) {
+          endGraphemeIdx = i + 1;
+        }
+        
+        currentPos += segmentLength;
+      }
+      
+      if (startGraphemeIdx === -1) startGraphemeIdx = 0;
+      if (endGraphemeIdx === -1) endGraphemeIdx = graphemes.length;
+      
+      console.log(`    Slicing glyphs for graphemes [${startGraphemeIdx}, ${endGraphemeIdx}) from ${run.glyphs.length} glyphs`);
+      
+      // Assume glyphs correspond to graphemes (which is usually true for properly shaped text)
+      const glyphStart = Math.min(startGraphemeIdx, run.glyphs.length);
+      const glyphEnd = Math.min(endGraphemeIdx, run.glyphs.length);
+      
+      newRun.glyphs = run.glyphs.slice(glyphStart, glyphEnd);
+      newRun.positions = run.positions.slice(glyphStart, glyphEnd);
+      
+      // Update glyphIndices if present
       if (run.glyphIndices && Array.isArray(run.glyphIndices)) {
-        // glyphIndices[i] = the glyph index where character i starts
-        const startGlyphIdx = run.glyphIndices[charStart] || 0;
-        const endGlyphIdx = charEnd < run.glyphIndices.length 
-          ? run.glyphIndices[charEnd] 
-          : run.glyphs.length;
-        
-        newRun.glyphs = run.glyphs.slice(startGlyphIdx, endGlyphIdx);
-        newRun.positions = run.positions.slice(startGlyphIdx, endGlyphIdx);
-        
-        // Create new glyphIndices array relative to the sliced glyphs
         newRun.glyphIndices = [];
+        const charStart = overlapStart - runStart;
+        const charEnd = overlapEnd - runStart;
+        
         for (let i = 0; i < (charEnd - charStart); i++) {
           const originalIdx = charStart + i;
           if (originalIdx < run.glyphIndices.length) {
-            newRun.glyphIndices[i] = run.glyphIndices[originalIdx] - startGlyphIdx;
+            const origGlyphIdx = run.glyphIndices[originalIdx];
+            newRun.glyphIndices[i] = Math.max(0, Math.min(origGlyphIdx - glyphStart, newRun.glyphs.length - 1));
           } else {
-            newRun.glyphIndices[i] = newRun.glyphs.length;
+            newRun.glyphIndices[i] = newRun.glyphs.length - 1;
           }
         }
-      } else {
-        // No glyphIndices means 1:1 character to glyph mapping
-        newRun.glyphs = run.glyphs.slice(charStart, charEnd);
-        newRun.positions = run.positions.slice(charStart, charEnd);
       }
       
       // Recalculate xAdvance
@@ -437,7 +578,7 @@ function extractRunsForRange(runs: Run[], start: number, end: number): Run[] {
         newRun.xAdvance = newRun.positions.reduce((sum, pos) => sum + (pos.xAdvance || 0), 0);
       }
       
-      console.log(`    Created run with ${newRun.glyphs?.length} glyphs for ${charEnd - charStart} chars`);
+      console.log(`    Created run with ${newRun.glyphs?.length} glyphs`);
     }
     
     result.push(newRun);

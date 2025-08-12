@@ -1,6 +1,6 @@
 import { ChangeEvent, useCallback, useState } from 'react';
 
-export type LayoutMethod = 'dom' | 'html2canvas' | 'textkit-text' | 'textkit-path';
+export type LayoutMethod = 'dom' | 'html2canvas' | 'textkit-text' | 'textkit-path' | 'textkit-render';
 
 export function useRadioChange(
   initialValue: LayoutMethod,

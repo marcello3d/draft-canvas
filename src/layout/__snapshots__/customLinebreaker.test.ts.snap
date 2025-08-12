@@ -345,6 +345,550 @@ Array [
 ]
 `;
 
+exports[`customLinebreaker Emoji handling should handle complex emoji with ZWJ sequence "😵‍💫 words that" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "😵‍💫 words",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "that",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle emoji at line boundaries 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 4,
+        "start": 0,
+      },
+    ],
+    "string": "test",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "😵‍💫test",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle family emoji with ZWJ "👨‍👩‍👧‍👦 family" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 648,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 18,
+        "start": 0,
+      },
+    ],
+    "string": "👨‍👩‍👧‍👦 family",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle flag emoji "🇺🇸 🇯🇵 🇬🇧 flags" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "🇺🇸 🇯🇵",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 4,
+        "start": 0,
+      },
+    ],
+    "string": "🇬🇧",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "flags",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle keycap sequences "1️⃣ 2️⃣ 3️⃣ numbers" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "1️⃣",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "2️⃣",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "3️⃣",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "number",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 36,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "s",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle mixed complex emoji "🧑‍🤝‍🧑👨‍❤️‍👨🏳️‍🌈 love" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 504,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 14,
+        "start": 0,
+      },
+    ],
+    "string": "🧑‍🤝‍🧑👨‍❤️‍",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "👨🏳️‍🌈",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "love",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle multiple emoji "🎉🎊🎈 party time" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "🎉🎊🎈",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "party",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "time",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle professional emoji with gender and skin tone "👨🏾‍💻 developer" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 252,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 7,
+        "start": 0,
+      },
+    ],
+    "string": "👨🏾‍💻",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "develope",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 36,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "r",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle simple emoji "😀 hello world" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "😀 hello",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "world",
+  },
+]
+`;
+
+exports[`customLinebreaker Emoji handling should handle skin tone modifiers "👋🏽 hello 🤝🏻" 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "👋🏽 hello",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 2,
+        "start": 0,
+      },
+    ],
+    "string": "🤝🏻",
+  },
+]
+`;
+
 exports[`customLinebreaker English text should break simple English text at word boundaries 1`] = `
 Array [
   Object {

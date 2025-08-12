@@ -9,24 +9,38 @@ export interface TextkitCanvasProps {
   showOutlines: boolean;
   defaultFont?: string;
   editorState: EditorState;
+  useCustomLineBreaker?: boolean | 'simple';
 }
 
 export async function getTextkitTextLayout(
   text: string,
   width: number,
   height: number,
-  editorState?: EditorState
+  editorState?: EditorState,
+  useCustomLineBreaker?: boolean | 'simple'
 ): Promise<Layout> {
-  return computeTextkitLayout(text, width, height, 60, editorState);
+  return computeTextkitLayout(text, width, height, 60, editorState, useCustomLineBreaker);
 }
 
 export async function getTextkitPathLayout(
   text: string,
   width: number,
   height: number,
-  editorState?: EditorState
+  editorState?: EditorState,
+  useCustomLineBreaker?: boolean | 'simple'
 ): Promise<{ layout: Layout; glyphPaths: any[] }> {
-  return computeTextkitLayoutWithPaths(text, width, height, 60, editorState);
+  return computeTextkitLayoutWithPaths(text, width, height, 60, editorState, useCustomLineBreaker);
+}
+
+export async function getTextkitRenderLayout(
+  text: string,
+  width: number,
+  height: number,
+  editorState?: EditorState,
+  useCustomLineBreaker?: boolean | 'simple'
+): Promise<{ layout: Layout; glyphData: any[] }> {
+  const { computeTextkitLayoutWithRender } = await import('./textkitLayout');
+  return computeTextkitLayoutWithRender(text, width, height, 60, editorState, useCustomLineBreaker);
 }
 
 export function renderOutlines(

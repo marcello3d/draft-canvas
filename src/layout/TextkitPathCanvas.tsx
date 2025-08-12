@@ -14,7 +14,8 @@ export const TextkitPathCanvas = React.memo(function TextkitPathCanvas({
   text,
   showOutlines,
   defaultFont = '400 60px "Roboto"',
-  editorState
+  editorState,
+  useCustomLineBreaker
 }: TextkitCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [textkitLayout, setTextkitLayout] = useState<Layout | null>(null);
@@ -22,13 +23,13 @@ export const TextkitPathCanvas = React.memo(function TextkitPathCanvas({
 
   useEffect(() => {
     const startTime = performance.now();
-    getTextkitPathLayout(text, width, height, editorState).then(({ layout, glyphPaths }) => {
+    getTextkitPathLayout(text, width, height, editorState, useCustomLineBreaker).then(({ layout, glyphPaths }) => {
       setTextkitLayout(layout);
       setGlyphPaths(glyphPaths);
       const endTime = performance.now();
       console.log(`Textkit path layout total time: ${endTime - startTime}ms`);
     });
-  }, [text, width, height, editorState]);
+  }, [text, width, height, editorState, useCustomLineBreaker]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

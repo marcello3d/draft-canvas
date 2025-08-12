@@ -9,15 +9,15 @@
 }
 .editor {
   font-variant-ligatures: normal;
-  font-family: 'Roboto', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans SC', 'Noto Sans TC', 'Noto Color Emoji', sans-serif;
+  font-family: 'Roboto', 'Noto Sans JP', 'Noto Sans KR', 'Noto Sans SC', 'Noto Sans TC', 'Noto Color Emoji';
   font-size: 60px;
   text-align: left;
   color: rgba(0, 0, 0, 0);
   caret-color: blue;
   /* Prevent faux bold and italic - use actual font files */
   font-synthesis: none;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /*-webkit-font-smoothing: antialiased;*/
+  /*-moz-osx-font-smoothing: grayscale;*/
 }
 ::selection {
   background-color: #a1aeff;

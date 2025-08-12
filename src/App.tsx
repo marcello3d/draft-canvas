@@ -11,6 +11,7 @@ import 'draft-js/dist/Draft.css';
 import { LayoutCanvas } from './layout/LayoutCanvas';
 import { TextkitTextCanvas } from './layout/TextkitTextCanvas';
 import { TextkitPathCanvas } from './layout/TextkitPathCanvas';
+import { TextkitRenderCanvas } from './layout/TextkitRenderCanvas';
 import { computeLayout, Layout } from './layout/layout';
 import { Html2CanvasRenderer } from './layout/Html2CanvasRenderer';
 import { useCheckboxChange } from './useCheckboxChange';
@@ -29,6 +30,7 @@ export default function App() {
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
+  const [lineBreaker, setLineBreaker] = useState<'default' | 'custom' | 'simple'>('simple');
   const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-path');
 
   const content = editorState.getCurrentContent();
@@ -45,22 +47,12 @@ export default function App() {
         new FontFace(
           'Roboto',
           'url(/Roboto/Roboto-VariableFont_wdth,wght.ttf)',
-          { weight: '400', style: 'normal' },
-        ),
-        new FontFace(
-          'Roboto',
-          'url(/Roboto/Roboto-VariableFont_wdth,wght.ttf)',
-          { weight: '700', style: 'normal' },
+          { weight: '100 900', style: 'normal' },
         ),
         new FontFace(
           'Roboto',
           'url(/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf)',
-          { weight: '400', style: 'italic' },
-        ),
-        new FontFace(
-          'Roboto',
-          'url(/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf)',
-          { weight: '700', style: 'italic' },
+          { weight: '100 900', style: 'italic' },
         ),
         // Noto Sans SC (Simplified Chinese) variable font
         new FontFace(
@@ -188,6 +180,20 @@ export default function App() {
           </label>
         </li>
         <li>
+          <label>
+            Line breaker: 
+            <select 
+              value={lineBreaker} 
+              onChange={(e) => setLineBreaker(e.target.value as 'default' | 'custom' | 'simple')}
+              style={{ marginLeft: '8px' }}
+            >
+              <option value="default">Default (textkit)</option>
+              <option value="custom">Custom (complex)</option>
+              <option value="simple">Simple (new)</option>
+            </select>
+          </label>
+        </li>
+        <li>
           <fieldset>
             <legend>Layout Method:</legend>
             <label>
@@ -233,6 +239,17 @@ export default function App() {
               />
               textkit + canvas2d path rendering
             </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="textkit-render"
+                checked={layoutMethod === 'textkit-render'}
+                onChange={onChangeLayoutMethod}
+              />
+              textkit + glyph.render()
+            </label>
           </fieldset>
         </li>
       </ul>
@@ -262,6 +279,7 @@ export default function App() {
                 text={plainText}
                 showOutlines={showOutlines}
                 editorState={editorState}
+                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
               />
             )
           ) : layoutMethod === 'textkit-path' ? (
@@ -272,6 +290,18 @@ export default function App() {
                 text={plainText}
                 showOutlines={showOutlines}
                 editorState={editorState}
+                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+              />
+            )
+          ) : layoutMethod === 'textkit-render' ? (
+            layout && (
+              <TextkitRenderCanvas
+                width={layout.width}
+                height={layout.height}
+                text={plainText}
+                showOutlines={showOutlines}
+                editorState={editorState}
+                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
               />
             )
           ) : null}
@@ -307,6 +337,7 @@ export default function App() {
               text={plainText}
               showOutlines={showOutlines}
               editorState={editorState}
+              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
             />
           )
         ) : layoutMethod === 'textkit-path' ? (
@@ -317,6 +348,18 @@ export default function App() {
               text={plainText}
               showOutlines={showOutlines}
               editorState={editorState}
+              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+            />
+          )
+        ) : layoutMethod === 'textkit-render' ? (
+          layout && (
+            <TextkitRenderCanvas
+              width={layout.width}
+              height={layout.height}
+              text={plainText}
+              showOutlines={showOutlines}
+              editorState={editorState}
+              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
             />
           )
         ) : null}
