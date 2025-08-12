@@ -1,0 +1,1549 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`customLinebreaker Chinese text should break Chinese text character by character 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "目前基本上",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 36,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "一",
+  },
+]
+`;
+
+exports[`customLinebreaker Chinese text should handle Chinese text with punctuation 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "你好，世界！",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "这是测试。",
+  },
+]
+`;
+
+exports[`customLinebreaker Chinese text should respect CJK line breaking rules 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "这是「引用」的内",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 72,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 2,
+        "start": 0,
+      },
+    ],
+    "string": "容。",
+  },
+]
+`;
+
+exports[`customLinebreaker Edge cases should handle empty string 1`] = `Array []`;
+
+exports[`customLinebreaker Edge cases should handle multiple runs 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+          "fontWeight": 700,
+        },
+        "end": 10,
+        "start": 6,
+      },
+    ],
+    "string": "Hello bold",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "world",
+  },
+]
+`;
+
+exports[`customLinebreaker Edge cases should handle single character 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 36,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 1,
+        "start": 0,
+      },
+    ],
+    "string": "A",
+  },
+]
+`;
+
+exports[`customLinebreaker Edge cases should handle very long word that exceeds line width 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "super",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "calif",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "ragil",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "istic",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "expia",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "lidoc",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 4,
+        "start": 0,
+      },
+    ],
+    "string": "ious",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should break simple English text at word boundaries 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "Hello this",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 252,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 7,
+        "start": 0,
+      },
+    ],
+    "string": "is some",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "wrapping",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 144,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 4,
+        "start": 0,
+      },
+    ],
+    "string": "text",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle "what is going on toi" case that was overflowing 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 468,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 13,
+        "start": 0,
+      },
+    ],
+    "string": "what is going",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "on toi",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle long text that requires multiple line breaks 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "Lorem ipsum",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "dolor sit",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "amet,",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "consectetur",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "adipiscing",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "elit. Sed",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "do eiusmod",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "tempor",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "incididunt",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "ut labore",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "et dolore",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "magna",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 252,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 7,
+        "start": 0,
+      },
+    ],
+    "string": "aliqua.",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle multiple lines 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "The",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "quick",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "brown",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "start": 0,
+      },
+    ],
+    "string": "fox",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "jumps",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "over the",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "lazy dog",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle multiple sentences with proper wrapping 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "This is the",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 540,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 15,
+        "start": 0,
+      },
+    ],
+    "string": "first sentence.",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "This is the",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 576,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 16,
+        "start": 0,
+      },
+    ],
+    "string": "second sentence.",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 540,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 15,
+        "start": 0,
+      },
+    ],
+    "string": "And here is the",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "third.",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle paragraphs with double newlines 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "First",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "paragraph",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "here.",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 216,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 6,
+        "start": 0,
+      },
+    ],
+    "string": "Second",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "paragraph",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "here.",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "Third",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "paragraph.",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle text with newlines 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "First line",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 396,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 11,
+        "start": 0,
+      },
+    ],
+    "string": "Second line",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "Third line",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle text with trailing spaces 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 468,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 13,
+        "start": 0,
+      },
+    ],
+    "string": "what is going",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "on in",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should handle the original bug text 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 468,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 13,
+        "start": 0,
+      },
+    ],
+    "string": "Hello this is",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 468,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 13,
+        "start": 0,
+      },
+    ],
+    "string": "some wrapping",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 288,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 8,
+        "start": 0,
+      },
+    ],
+    "string": "text I'm",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "trying to",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 360,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 10,
+        "start": 0,
+      },
+    ],
+    "string": "start with",
+  },
+]
+`;
+
+exports[`customLinebreaker English text should not wrap "what is going on in" without trailing space 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 468,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 13,
+        "start": 0,
+      },
+    ],
+    "string": "what is going",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 180,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 5,
+        "start": 0,
+      },
+    ],
+    "string": "on in",
+  },
+]
+`;
+
+exports[`customLinebreaker Mixed content should handle mixed English and Chinese 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 252,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 7,
+        "start": 0,
+      },
+    ],
+    "string": "Hello世界",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 324,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 9,
+        "start": 0,
+      },
+    ],
+    "string": "this是test",
+  },
+]
+`;
+
+exports[`customLinebreaker With glyphs and positions should handle runs with pre-generated glyphs 1`] = `
+Array [
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 108,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 3,
+        "glyphIndices": Array [
+          0,
+          1,
+          2,
+        ],
+        "glyphs": Array [
+          Object {
+            "codePoints": Array [
+              72,
+            ],
+            "id": 1,
+          },
+          Object {
+            "codePoints": Array [
+              72,
+            ],
+            "id": 1,
+          },
+          Object {
+            "codePoints": Array [
+              72,
+            ],
+            "id": 1,
+          },
+        ],
+        "positions": Array [
+          Object {
+            "xAdvance": 36,
+            "xOffset": 0,
+            "yAdvance": 0,
+            "yOffset": 0,
+          },
+          Object {
+            "xAdvance": 36,
+            "xOffset": 0,
+            "yAdvance": 0,
+            "yOffset": 0,
+          },
+          Object {
+            "xAdvance": 36,
+            "xOffset": 0,
+            "yAdvance": 0,
+            "yOffset": 0,
+          },
+        ],
+        "start": 0,
+        "xAdvance": 108,
+      },
+    ],
+    "string": "Hel",
+  },
+  Object {
+    "box": Object {
+      "height": 0,
+      "width": 72,
+      "x": 0,
+      "y": 0,
+    },
+    "runs": Array [
+      Object {
+        "attributes": Object {
+          "font": Array [],
+          "fontSize": 60,
+        },
+        "end": 2,
+        "glyphIndices": Array [
+          0,
+          1,
+        ],
+        "glyphs": Array [
+          Object {
+            "codePoints": Array [
+              72,
+            ],
+            "id": 1,
+          },
+          Object {
+            "codePoints": Array [
+              72,
+            ],
+            "id": 1,
+          },
+        ],
+        "positions": Array [
+          Object {
+            "xAdvance": 36,
+            "xOffset": 0,
+            "yAdvance": 0,
+            "yOffset": 0,
+          },
+          Object {
+            "xAdvance": 36,
+            "xOffset": 0,
+            "yAdvance": 0,
+            "yOffset": 0,
+          },
+        ],
+        "start": 0,
+        "xAdvance": 72,
+      },
+    ],
+    "string": "lo",
+  },
+]
+`;
