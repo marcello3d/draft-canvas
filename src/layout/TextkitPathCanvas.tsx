@@ -45,13 +45,24 @@ export const TextkitPathCanvas = React.memo(function TextkitPathCanvas({
     
     ctx.fillStyle = 'black';
     
-    for (const { path, x, y, scale } of glyphPaths) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.scale(scale, -scale);
-      const path2d = new Path2D(path);
-      ctx.fill(path2d);
-      ctx.restore();
+    for (const glyph of glyphPaths) {
+      if (glyph.isEmoji) {
+        // Render emoji using fillText
+        ctx.save();
+        ctx.font = glyph.font;
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(glyph.char, glyph.x, glyph.y);
+        ctx.restore();
+      } else {
+        // Render regular glyph using path
+        const { path, x, y, scale } = glyph;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, -scale);
+        const path2d = new Path2D(path);
+        ctx.fill(path2d);
+        ctx.restore();
+      }
     }
     
     renderOutlines(ctx, textkitLayout.lines, showOutlines);

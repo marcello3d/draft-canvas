@@ -59,12 +59,44 @@ async function loadFont(fontPath: string) {
 }
 
 async function loadRobotoFonts() {
-  const [regular, bold, italic, boldItalic, notoSans] = await Promise.all([
+  const [
+    regular, 
+    bold, 
+    italic, 
+    boldItalic,
+    // Simplified Chinese fonts
+    notoSansSC,
+    notoSansSCBold,
+    // Traditional Chinese fonts
+    notoSansTC,
+    notoSansTCBold,
+    // Japanese fonts
+    notoSansJP,
+    notoSansJPBold,
+    // Korean fonts
+    notoSansKR,
+    notoSansKRBold,
+    // Emoji font
+    notoColorEmoji,
+  ] = await Promise.all([
     loadFont('/Roboto/Roboto-Regular.ttf'),
     loadFont('/Roboto/Roboto-Bold.ttf'),
     loadFont('/Roboto/Roboto-Italic.ttf'),
     loadFont('/Roboto/Roboto-BoldItalic.ttf'),
-    loadFont('/NotoSansCJK/NotoSansSC-Regular.otf'), // Add Noto Sans for CJK support
+    // Simplified Chinese
+    loadFont('/Noto_Sans_SC/static/NotoSansSC-Regular.ttf'),
+    loadFont('/Noto_Sans_SC/static/NotoSansSC-Bold.ttf'),
+    // Traditional Chinese
+    loadFont('/Noto_Sans_TC/static/NotoSansTC-Regular.ttf'),
+    loadFont('/Noto_Sans_TC/static/NotoSansTC-Bold.ttf'),
+    // Japanese
+    loadFont('/Noto_Sans_JP/static/NotoSansJP-Regular.ttf'),
+    loadFont('/Noto_Sans_JP/static/NotoSansJP-Bold.ttf'),
+    // Korean
+    loadFont('/Noto_Sans_KR/static/NotoSansKR-Regular.ttf'),
+    loadFont('/Noto_Sans_KR/static/NotoSansKR-Bold.ttf'),
+    // Emoji
+    loadFont('/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf'),
   ]);
   
   return {
@@ -72,17 +104,65 @@ async function loadRobotoFonts() {
     bold,
     italic,
     boldItalic,
-    notoSans, // Include Noto Sans in the font set
+    notoSansSC,
+    notoSansSCBold,
+    notoSansTC,
+    notoSansTCBold,
+    notoSansJP,
+    notoSansJPBold,
+    notoSansKR,
+    notoSansKRBold,
+    notoColorEmoji,
   };
 }
 
 function getFontForStyles(fonts: any, isBold: boolean, isItalic: boolean) {
   // Return an array of fonts for fallback support
-  // Primary font based on style, with Noto Sans as fallback for CJK characters
-  if (isBold && isItalic) return [fonts.boldItalic, fonts.notoSans];
-  if (isBold) return [fonts.bold, fonts.notoSans];
-  if (isItalic) return [fonts.italic, fonts.notoSans];
-  return [fonts.regular, fonts.notoSans];
+  // Primary font based on style, with all CJK fonts as fallbacks
+  // Note: CJK fonts typically don't have italic variants, so we use regular/bold only for CJK
+  
+  // Order: Latin -> Simplified Chinese -> Traditional Chinese -> Japanese -> Korean
+  // This covers most common use cases while providing comprehensive CJK support
+  
+  if (isBold && isItalic) {
+    return [
+      fonts.boldItalic,
+      fonts.notoSansSCBold,
+      fonts.notoSansTCBold,
+      fonts.notoSansJPBold,
+      fonts.notoSansKRBold,
+      fonts.notoColorEmoji,
+    ];
+  }
+  if (isBold) {
+    return [
+      fonts.bold,
+      fonts.notoSansSCBold,
+      fonts.notoSansTCBold,
+      fonts.notoSansJPBold,
+      fonts.notoSansKRBold,
+      fonts.notoColorEmoji,
+    ];
+  }
+  if (isItalic) {
+    // Use regular CJK fonts when italic (CJK doesn't have true italics)
+    return [
+      fonts.italic,
+      fonts.notoSansSC,
+      fonts.notoSansTC,
+      fonts.notoSansJP,
+      fonts.notoSansKR,
+      fonts.notoColorEmoji,
+    ];
+  }
+  return [
+    fonts.regular,
+    fonts.notoSansSC,
+    fonts.notoSansTC,
+    fonts.notoSansJP,
+    fonts.notoSansKR,
+    fonts.notoColorEmoji,
+  ];
 }
 
 export interface StyleRange {
@@ -101,6 +181,22 @@ export function extractStyleRanges(editorState: EditorState): StyleRange[] {
   blocks.forEach((block: ContentBlock, blockIndex: number) => {
     const text = block.getText();
     const characterList = block.getCharacterList();
+    
+    // Handle empty blocks (e.g., when user hits enter)
+    if (text.length === 0) {
+      // Still need to account for the newline character in offset
+      if (blockIndex < blocks.length - 1) {
+        // Create a range for the newline with default styling
+        styleRanges.push({
+          start: offset,
+          end: offset + 1,
+          isBold: false,
+          isItalic: false,
+        });
+        offset += 1;
+      }
+      return;
+    }
     
     let currentBold = false;
     let currentItalic = false;
@@ -166,6 +262,7 @@ export async function computeTextkitLayout(
   const styleRanges = editorState ? extractStyleRanges(editorState) : [];
 
   // Create runs based on style ranges
+  // Ensure we always have at least one run with attributes, even for empty text
   const runs = styleRanges.length > 0 ? styleRanges.map(range => ({
     start: range.start,
     end: range.end,
@@ -177,9 +274,9 @@ export async function computeTextkitLayout(
     },
   })) : [{
     start: 0,
-    end: text.length,
+    end: Math.max(text.length, 1), // Ensure at least 1 character range for empty text
     attributes: {
-      font: [fonts.regular, fonts.notoSans], // Array with fallback font
+      font: [fonts.regular, fonts.notoSansSC, fonts.notoSansTC, fonts.notoSansJP, fonts.notoSansKR, fonts.notoColorEmoji], // Array with CJK and emoji fallback fonts
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
@@ -274,17 +371,30 @@ export async function computeTextkitLayout(
                 let fontWeight = 400;
                 let fontStyle = 'normal';
                 
-                if (primaryFont === fonts.bold) {
+                // Check if the primary font is any of the bold fonts
+                const boldFonts = [
+                  fonts.bold,
+                  fonts.boldItalic,
+                  fonts.notoSansSCBold,
+                  fonts.notoSansTCBold,
+                  fonts.notoSansJPBold,
+                  fonts.notoSansKRBold,
+                ];
+                
+                const italicFonts = [
+                  fonts.italic,
+                  fonts.boldItalic,
+                ];
+                
+                if (boldFonts.includes(primaryFont)) {
                   fontWeight = 700;
-                } else if (primaryFont === fonts.italic) {
-                  fontStyle = 'italic';
-                } else if (primaryFont === fonts.boldItalic) {
-                  fontWeight = 700;
+                }
+                if (italicFonts.includes(primaryFont)) {
                   fontStyle = 'italic';
                 }
                 
-                // Include Noto Sans in the font family for fallback
-                const fontFamily = '"Roboto", "Noto Sans SC", sans-serif';
+                // Include all CJK and emoji fonts in the font family for comprehensive fallback
+                const fontFamily = '"Roboto", "Noto Sans SC", "Noto Sans TC", "Noto Sans JP", "Noto Sans KR", "Noto Color Emoji", sans-serif';
                 const fontString = fontStyle === 'italic' 
                   ? `italic ${fontWeight} ${fontSize}px ${fontFamily}`
                   : `${fontWeight} ${fontSize}px ${fontFamily}`;
@@ -335,6 +445,7 @@ export async function computeTextkitLayoutWithPaths(
   const styleRanges = editorState ? extractStyleRanges(editorState) : [];
 
   // Create runs based on style ranges
+  // Ensure we always have at least one run with attributes, even for empty text
   const runs = styleRanges.length > 0 ? styleRanges.map(range => ({
     start: range.start,
     end: range.end,
@@ -346,9 +457,9 @@ export async function computeTextkitLayoutWithPaths(
     },
   })) : [{
     start: 0,
-    end: text.length,
+    end: Math.max(text.length, 1), // Ensure at least 1 character range for empty text
     attributes: {
-      font: [fonts.regular, fonts.notoSans], // Array with fallback font
+      font: [fonts.regular, fonts.notoSansSC, fonts.notoSansTC, fonts.notoSansJP, fonts.notoSansKR, fonts.notoColorEmoji], // Array with CJK and emoji fallback fonts
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
@@ -399,37 +510,60 @@ export async function computeTextkitLayoutWithPaths(
               let currentX = lineX; // Start from accumulated position
 
               // Get the font from the run attributes
-              // @ts-ignore
               const runFont = run.attributes?.font?.[0] || fonts.regular;
               // Calculate proper ascent from font metrics
-              const ascent = (runFont.ascent / runFont.unitsPerEm) * fontSize;
+              const ascent = ((runFont as any).ascent / (runFont as any).unitsPerEm) * fontSize;
 
               for (let i = 0; i < run.glyphs.length; i++) {
                 const glyph = run.glyphs[i];
                 const position = run.positions[i];
 
-                // @ts-ignore
-                if (glyph && glyph.id) {
-                  // @ts-ignore
-                  const glyphObj = runFont.getGlyph(glyph.id);
-                  if (glyphObj && glyphObj.path) {
-                    // Use position offsets to properly place each glyph
-                    const glyphX = currentX + (position.xOffset || 0);
-                    const glyphY = (line.box?.y || 0) + ascent + (position.yOffset || 0);
-                    
+                if (glyph && 'id' in glyph) {
+                  // Check if this is an emoji (color emoji font or emoji codepoint)
+                  const glyphCodePoints = (glyph as any).codePoints as number[] | undefined;
+                  const isEmoji = runFont === fonts.notoColorEmoji || 
+                    (glyphCodePoints && glyphCodePoints.some((cp: number) => 
+                      // Common emoji ranges
+                      (cp >= 0x1F300 && cp <= 0x1F9FF) || // Misc symbols and pictographs
+                      (cp >= 0x2600 && cp <= 0x26FF) ||   // Misc symbols
+                      (cp >= 0x2700 && cp <= 0x27BF) ||   // Dingbats
+                      (cp >= 0x1F600 && cp <= 0x1F64F) || // Emoticons
+                      (cp >= 0x1F680 && cp <= 0x1F6FF)    // Transport and map
+                    ));
+                  
+                  const glyphX = currentX + (position.xOffset || 0);
+                  const glyphY = (line.box?.y || 0) + ascent + (position.yOffset || 0);
+                  
+                  if (isEmoji) {
+                    // For emoji, store the character to render with fillText
+                    const glyphString = (glyph as any).string as string | undefined;
+                    const char = glyphString || String.fromCodePoint(...(glyphCodePoints || []));
                     glyphPaths.push({
-                      path: glyphObj.path.toSVG(),
+                      isEmoji: true,
+                      char,
                       x: glyphX,
                       y: glyphY,
-                      scale: fontSize / runFont.unitsPerEm,
+                      fontSize,
+                      font: `${fontSize}px "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji"`,
                     });
+                  } else {
+                    // Regular glyph - try to get the path
+                    const glyphId = (glyph as any).id;
+                    const glyphObj = (runFont as any).getGlyph(glyphId);
+                    if (glyphObj && glyphObj.path) {
+                      glyphPaths.push({
+                        path: glyphObj.path.toSVG(),
+                        x: glyphX,
+                        y: glyphY,
+                        scale: fontSize / (runFont as any).unitsPerEm,
+                      });
+                    }
                   }
-
-                  // @ts-ignore
-                  if (glyph.string && glyph.string.trim()) {
+                  
+                  const glyphWithString = glyph as any;
+                  if (glyphWithString.string && glyphWithString.string.trim()) {
                     lines.push({
-                      // @ts-ignore
-                      text: glyph.string,
+                      text: glyphWithString.string,
                       left: currentX,
                       top: line.box?.y || 0,
                       right: currentX + (position.xAdvance || 0),

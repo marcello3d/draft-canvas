@@ -37,20 +37,35 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const plainText = content.getPlainText();
   
-  // Load all Roboto font variants using FontFace API
+  // Load all Roboto and CJK font variants using FontFace API
   React.useEffect(() => {
     const loadFonts = async () => {
       const fonts = [
+        // Roboto fonts
         new FontFace('Roboto', 'url(/Roboto/Roboto-Regular.ttf)', { weight: '400', style: 'normal' }),
         new FontFace('Roboto', 'url(/Roboto/Roboto-Bold.ttf)', { weight: '700', style: 'normal' }),
         new FontFace('Roboto', 'url(/Roboto/Roboto-Italic.ttf)', { weight: '400', style: 'italic' }),
         new FontFace('Roboto', 'url(/Roboto/Roboto-BoldItalic.ttf)', { weight: '700', style: 'italic' }),
+        // Noto Sans SC (Simplified Chinese)
+        new FontFace('Noto Sans SC', 'url(/Noto_Sans_SC/static/NotoSansSC-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace('Noto Sans SC', 'url(/Noto_Sans_SC/static/NotoSansSC-Bold.ttf)', { weight: '700', style: 'normal' }),
+        // Noto Sans TC (Traditional Chinese)
+        new FontFace('Noto Sans TC', 'url(/Noto_Sans_TC/static/NotoSansTC-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace('Noto Sans TC', 'url(/Noto_Sans_TC/static/NotoSansTC-Bold.ttf)', { weight: '700', style: 'normal' }),
+        // Noto Sans JP (Japanese)
+        new FontFace('Noto Sans JP', 'url(/Noto_Sans_JP/static/NotoSansJP-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace('Noto Sans JP', 'url(/Noto_Sans_JP/static/NotoSansJP-Bold.ttf)', { weight: '700', style: 'normal' }),
+        // Noto Sans KR (Korean)
+        new FontFace('Noto Sans KR', 'url(/Noto_Sans_KR/static/NotoSansKR-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace('Noto Sans KR', 'url(/Noto_Sans_KR/static/NotoSansKR-Bold.ttf)', { weight: '700', style: 'normal' }),
+        // Noto Color Emoji
+        new FontFace('Noto Color Emoji', 'url(/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf)', { weight: '400', style: 'normal' }),
       ];
       
       try {
         const loadedFonts = await Promise.all(fonts.map(font => font.load()));
         loadedFonts.forEach(font => document.fonts.add(font));
-        console.log('All Roboto fonts loaded successfully');
+        console.log('All fonts loaded successfully (Roboto + CJK)');
         setFontsLoaded(true);
       } catch (error) {
         console.error('Error loading fonts:', error);

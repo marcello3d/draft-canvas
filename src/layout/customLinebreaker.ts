@@ -152,10 +152,43 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
       console.log(`Line ${lineIndex}: max width = ${maxWidth}, starting at position ${currentPosition}`);
       
       // Scan forward to find where to break the line
-      for (let i = currentPosition; i < string.length; i++) {
+      // We need to handle multi-codepoint characters like emoji properly
+      let i = currentPosition;
+      while (i < string.length) {
         const char = string[i];
         
-        // Get the width of this character from the runs
+        // Check if this is a surrogate pair or emoji sequence
+        let charLength = 1;
+        const code = char.charCodeAt(0);
+        
+        // Check for surrogate pairs (emoji and other Unicode beyond BMP)
+        if (code >= 0xD800 && code <= 0xDBFF && i + 1 < string.length) {
+          const nextCode = string.charCodeAt(i + 1);
+          if (nextCode >= 0xDC00 && nextCode <= 0xDFFF) {
+            charLength = 2; // Surrogate pair
+          }
+        }
+        
+        // Check for zero-width joiner sequences (complex emoji)
+        if (i + 1 < string.length && string[i + 1] === '\u200D') {
+          // This is part of a ZWJ sequence, skip ahead to find the full sequence
+          let j = i + 2;
+          while (j < string.length) {
+            const c = string.charCodeAt(j);
+            if (c >= 0xD800 && c <= 0xDBFF && j + 1 < string.length) {
+              j += 2; // Skip surrogate pair
+            } else if (string[j] === '\u200D') {
+              j += 1; // Skip ZWJ
+            } else if (c >= 0xFE00 && c <= 0xFE0F) {
+              j += 1; // Skip variation selector
+            } else {
+              break;
+            }
+          }
+          charLength = j - i;
+        }
+        
+        // Get the width of this character/grapheme from the runs
         const charWidth = getCharacterWidth(attributedString, i);
         const newWidth = currentWidth + charWidth;
         
@@ -205,11 +238,14 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
         }
         
         // If we reach the end of the string, take everything
-        if (i === string.length - 1) {
+        if (i + charLength >= string.length) {
           lineEnd = string.length;
           console.log(`  End of string at position ${i}`);
           break;
         }
+        
+        // Move to next character (accounting for multi-codepoint sequences)
+        i += charLength;
       }
       
       // Create the line
@@ -262,8 +298,44 @@ export const customLinebreaker = (options: LayoutOptions = {}) => {
 /**
  * Get the width of a character at a specific position
  */
+/**
+ * Map string position to glyph index, handling multi-codepoint characters
+ * like emoji that use surrogate pairs or zero-width joiners
+ */
+function getGlyphIndexForPosition(string: string, run: Run, position: number): number {
+  if (!run.glyphIndices || !run.glyphs) {
+    return position - (run.start || 0);
+  }
+  
+  const runStart = run.start || 0;
+  const runString = string.substring(runStart, run.end);
+  
+  // Use grapheme segmenter if available to properly handle emoji
+  if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+    const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' });
+    const segments = Array.from(segmenter.segment(runString));
+    
+    let currentPos = runStart;
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const segmentEnd = currentPos + segment.segment.length;
+      
+      if (position >= currentPos && position < segmentEnd) {
+        // This position is within this grapheme cluster
+        // Return the glyph index for this grapheme
+        return Math.min(i, run.glyphs.length - 1);
+      }
+      currentPos = segmentEnd;
+    }
+  }
+  
+  // Fallback: simple mapping
+  const relativePos = position - runStart;
+  return Math.min(relativePos, (run.glyphs?.length || 1) - 1);
+}
+
 function getCharacterWidth(attributedString: AttributedString, position: number): number {
-  const { runs } = attributedString;
+  const { runs, string } = attributedString;
   
   // Find the run that contains this position
   for (const run of runs) {
@@ -272,10 +344,10 @@ function getCharacterWidth(attributedString: AttributedString, position: number)
     
     if (position >= runStart && position < runEnd) {
       // If we have positions (glyph measurements), use them
-      if (run.positions && run.positions.length > 0) {
-        const relativePos = position - runStart;
-        if (relativePos < run.positions.length) {
-          return run.positions[relativePos].xAdvance || 0;
+      if (run.positions && run.glyphs && run.positions.length > 0) {
+        const glyphIndex = getGlyphIndexForPosition(string, run, position);
+        if (glyphIndex < run.positions.length) {
+          return run.positions[glyphIndex].xAdvance || 0;
         }
       }
       
