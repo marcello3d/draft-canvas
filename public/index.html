@@ -26,32 +26,37 @@
     -->
     <title>DraftJS + Canvas2D</title>
     <style>
+      /* Define specific weights for better Canvas2D compatibility */
       @font-face {
         font-family: 'Roboto';
         font-style: normal;
         font-weight: 400;
-        src: url('%PUBLIC_URL%/Roboto/Roboto-Regular.ttf') format('truetype');
+        src: url('%PUBLIC_URL%/Roboto/Roboto-VariableFont_wdth,wght.ttf') format('truetype-variations');
+        font-variation-settings: 'wght' 400, 'wdth' 100;
       }
       
       @font-face {
         font-family: 'Roboto';
         font-style: normal;
         font-weight: 700;
-        src: url('%PUBLIC_URL%/Roboto/Roboto-Bold.ttf') format('truetype');
+        src: url('%PUBLIC_URL%/Roboto/Roboto-VariableFont_wdth,wght.ttf') format('truetype-variations');
+        font-variation-settings: 'wght' 700, 'wdth' 100;
       }
       
       @font-face {
         font-family: 'Roboto';
         font-style: italic;
         font-weight: 400;
-        src: url('%PUBLIC_URL%/Roboto/Roboto-Italic.ttf') format('truetype');
+        src: url('%PUBLIC_URL%/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype-variations');
+        font-variation-settings: 'wght' 400, 'wdth' 100;
       }
       
       @font-face {
         font-family: 'Roboto';
         font-style: italic;
         font-weight: 700;
-        src: url('%PUBLIC_URL%/Roboto/Roboto-BoldItalic.ttf') format('truetype');
+        src: url('%PUBLIC_URL%/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype-variations');
+        font-variation-settings: 'wght' 700, 'wdth' 100;
       }
     </style>
   </head>

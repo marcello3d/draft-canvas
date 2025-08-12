@@ -52,7 +52,15 @@ export const TextkitTextCanvas = React.memo(function TextkitTextCanvas({
       right,
       font = defaultFont,
     } of textkitLayout.lines) {
-      ctx.font = font;
+      // Debug: log the font being set
+      if (font !== defaultFont) {
+        console.log('Setting canvas font:', font);
+        // Also check what font the browser actually used
+        ctx.font = font;
+        console.log('Browser interpreted as:', ctx.font);
+      } else {
+        ctx.font = font;
+      }
       ctx.fillText(text, left, bottom);
     }
     

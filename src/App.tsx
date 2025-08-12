@@ -29,42 +29,74 @@ export default function App() {
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
-  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-text');
+  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-path');
 
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState<Layout | undefined>();
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const plainText = content.getPlainText();
-  
-  // Load all Roboto and CJK font variants using FontFace API
+
+  // Load all Roboto and CJK font variants using FontFace API with variable fonts
   React.useEffect(() => {
     const loadFonts = async () => {
       const fonts = [
-        // Roboto fonts
-        new FontFace('Roboto', 'url(/Roboto/Roboto-Regular.ttf)', { weight: '400', style: 'normal' }),
-        new FontFace('Roboto', 'url(/Roboto/Roboto-Bold.ttf)', { weight: '700', style: 'normal' }),
-        new FontFace('Roboto', 'url(/Roboto/Roboto-Italic.ttf)', { weight: '400', style: 'italic' }),
-        new FontFace('Roboto', 'url(/Roboto/Roboto-BoldItalic.ttf)', { weight: '700', style: 'italic' }),
-        // Noto Sans SC (Simplified Chinese)
-        new FontFace('Noto Sans SC', 'url(/Noto_Sans_SC/static/NotoSansSC-Regular.ttf)', { weight: '400', style: 'normal' }),
-        new FontFace('Noto Sans SC', 'url(/Noto_Sans_SC/static/NotoSansSC-Bold.ttf)', { weight: '700', style: 'normal' }),
-        // Noto Sans TC (Traditional Chinese)
-        new FontFace('Noto Sans TC', 'url(/Noto_Sans_TC/static/NotoSansTC-Regular.ttf)', { weight: '400', style: 'normal' }),
-        new FontFace('Noto Sans TC', 'url(/Noto_Sans_TC/static/NotoSansTC-Bold.ttf)', { weight: '700', style: 'normal' }),
-        // Noto Sans JP (Japanese)
-        new FontFace('Noto Sans JP', 'url(/Noto_Sans_JP/static/NotoSansJP-Regular.ttf)', { weight: '400', style: 'normal' }),
-        new FontFace('Noto Sans JP', 'url(/Noto_Sans_JP/static/NotoSansJP-Bold.ttf)', { weight: '700', style: 'normal' }),
-        // Noto Sans KR (Korean)
-        new FontFace('Noto Sans KR', 'url(/Noto_Sans_KR/static/NotoSansKR-Regular.ttf)', { weight: '400', style: 'normal' }),
-        new FontFace('Noto Sans KR', 'url(/Noto_Sans_KR/static/NotoSansKR-Bold.ttf)', { weight: '700', style: 'normal' }),
+        // Roboto variable fonts - define specific weights for Canvas2D compatibility
+        new FontFace(
+          'Roboto',
+          'url(/Roboto/Roboto-VariableFont_wdth,wght.ttf)',
+          { weight: '400', style: 'normal' },
+        ),
+        new FontFace(
+          'Roboto',
+          'url(/Roboto/Roboto-VariableFont_wdth,wght.ttf)',
+          { weight: '700', style: 'normal' },
+        ),
+        new FontFace(
+          'Roboto',
+          'url(/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf)',
+          { weight: '400', style: 'italic' },
+        ),
+        new FontFace(
+          'Roboto',
+          'url(/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf)',
+          { weight: '700', style: 'italic' },
+        ),
+        // Noto Sans SC (Simplified Chinese) variable font
+        new FontFace(
+          'Noto Sans SC',
+          'url(/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf)',
+          { weight: '100 900', style: 'normal' },
+        ),
+        // Noto Sans TC (Traditional Chinese) variable font
+        new FontFace(
+          'Noto Sans TC',
+          'url(/Noto_Sans_TC/NotoSansTC-VariableFont_wght.ttf)',
+          { weight: '100 900', style: 'normal' },
+        ),
+        // Noto Sans JP (Japanese) variable font
+        new FontFace(
+          'Noto Sans JP',
+          'url(/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf)',
+          { weight: '100 900', style: 'normal' },
+        ),
+        // Noto Sans KR (Korean) variable font
+        new FontFace(
+          'Noto Sans KR',
+          'url(/Noto_Sans_KR/NotoSansKR-VariableFont_wght.ttf)',
+          { weight: '100 900', style: 'normal' },
+        ),
         // Noto Color Emoji
-        new FontFace('Noto Color Emoji', 'url(/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf)', { weight: '400', style: 'normal' }),
+        new FontFace(
+          'Noto Color Emoji',
+          'url(/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf)',
+          { weight: '400', style: 'normal' },
+        ),
       ];
-      
+
       try {
-        const loadedFonts = await Promise.all(fonts.map(font => font.load()));
-        loadedFonts.forEach(font => document.fonts.add(font));
+        const loadedFonts = await Promise.all(fonts.map((font) => font.load()));
+        loadedFonts.forEach((font) => document.fonts.add(font));
         console.log('All fonts loaded successfully (Roboto + CJK)');
         setFontsLoaded(true);
       } catch (error) {
@@ -72,7 +104,7 @@ export default function App() {
         setFontsLoaded(true); // Continue even if fonts fail to load
       }
     };
-    
+
     loadFonts();
   }, []);
 
@@ -105,9 +137,9 @@ export default function App() {
         // Use actual editor dimensions for textkit layout
         const width = editorRef.current.clientWidth;
         const height = editorRef.current.clientHeight;
-        
+
         console.log('Editor dimensions for textkit:', width, 'x', height);
-        
+
         setLayout({ width, height, lines: [] });
       }
     }
@@ -120,7 +152,7 @@ export default function App() {
       </div>
     );
   }
-  
+
   return (
     <div className={styles.root}>
       <h2>DraftJS + Canvas demo (Canvas2D & html2canvas)</h2>

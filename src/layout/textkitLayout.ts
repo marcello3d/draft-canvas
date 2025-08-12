@@ -60,58 +60,55 @@ async function loadFont(fontPath: string) {
 
 async function loadRobotoFonts() {
   const [
-    regular, 
-    bold, 
-    italic, 
-    boldItalic,
-    // Simplified Chinese fonts
-    notoSansSC,
-    notoSansSCBold,
-    // Traditional Chinese fonts
-    notoSansTC,
-    notoSansTCBold,
-    // Japanese fonts
-    notoSansJP,
-    notoSansJPBold,
-    // Korean fonts
-    notoSansKR,
-    notoSansKRBold,
+    robotoVariable,
+    robotoItalicVariable,
+    // CJK fonts using variable fonts where available
+    notoSansSCVariable,
+    notoSansTCVariable,
+    notoSansJPVariable,
+    notoSansKRVariable,
     // Emoji font
     notoColorEmoji,
   ] = await Promise.all([
-    loadFont('/Roboto/Roboto-Regular.ttf'),
-    loadFont('/Roboto/Roboto-Bold.ttf'),
-    loadFont('/Roboto/Roboto-Italic.ttf'),
-    loadFont('/Roboto/Roboto-BoldItalic.ttf'),
-    // Simplified Chinese
-    loadFont('/Noto_Sans_SC/static/NotoSansSC-Regular.ttf'),
-    loadFont('/Noto_Sans_SC/static/NotoSansSC-Bold.ttf'),
-    // Traditional Chinese
-    loadFont('/Noto_Sans_TC/static/NotoSansTC-Regular.ttf'),
-    loadFont('/Noto_Sans_TC/static/NotoSansTC-Bold.ttf'),
-    // Japanese
-    loadFont('/Noto_Sans_JP/static/NotoSansJP-Regular.ttf'),
-    loadFont('/Noto_Sans_JP/static/NotoSansJP-Bold.ttf'),
-    // Korean
-    loadFont('/Noto_Sans_KR/static/NotoSansKR-Regular.ttf'),
-    loadFont('/Noto_Sans_KR/static/NotoSansKR-Bold.ttf'),
+    loadFont('/Roboto/Roboto-VariableFont_wdth,wght.ttf'),
+    loadFont('/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf'),
+    // Simplified Chinese variable font
+    loadFont('/Noto_Sans_SC/NotoSansSC-VariableFont_wght.ttf'),
+    // Traditional Chinese variable font
+    loadFont('/Noto_Sans_TC/NotoSansTC-VariableFont_wght.ttf'),
+    // Japanese variable font
+    loadFont('/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf'),
+    // Korean variable font
+    loadFont('/Noto_Sans_KR/NotoSansKR-VariableFont_wght.ttf'),
     // Emoji
     loadFont('/Noto_Color_Emoji/NotoColorEmoji-Regular.ttf'),
   ]);
   
+  // Create variation instances for different weights
+  // fontkit's getVariation method creates a new font instance with specific variation settings
+  const createWeightVariation = (font: any, weight: number) => {
+    if (font.variationAxes && font.variationAxes.wght) {
+      console.log(`Creating variation for weight ${weight}`, font.variationAxes);
+      return font.getVariation({ wght: weight, wdth: 100 });
+    }
+    console.log(`No variation axes found for font, using base font`);
+    return font;
+  };
+  
   return {
-    regular,
-    bold,
-    italic,
-    boldItalic,
-    notoSansSC,
-    notoSansSCBold,
-    notoSansTC,
-    notoSansTCBold,
-    notoSansJP,
-    notoSansJPBold,
-    notoSansKR,
-    notoSansKRBold,
+    // Create specific weight instances from the variable fonts
+    regular: createWeightVariation(robotoVariable, 400),
+    bold: createWeightVariation(robotoVariable, 700),
+    italic: createWeightVariation(robotoItalicVariable, 400),
+    boldItalic: createWeightVariation(robotoItalicVariable, 700),
+    notoSansSC: createWeightVariation(notoSansSCVariable, 400),
+    notoSansSCBold: createWeightVariation(notoSansSCVariable, 700),
+    notoSansTC: createWeightVariation(notoSansTCVariable, 400),
+    notoSansTCBold: createWeightVariation(notoSansTCVariable, 700),
+    notoSansJP: createWeightVariation(notoSansJPVariable, 400),
+    notoSansJPBold: createWeightVariation(notoSansJPVariable, 700),
+    notoSansKR: createWeightVariation(notoSansKRVariable, 400),
+    notoSansKRBold: createWeightVariation(notoSansKRVariable, 700),
     notoColorEmoji,
   };
 }
@@ -271,6 +268,9 @@ export async function computeTextkitLayout(
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
+      // Store the intended weight for variable fonts
+      fontWeight: range.isBold ? 700 : 400,
+      fontStyle: range.isItalic ? 'italic' : 'normal',
     },
   })) : [{
     start: 0,
@@ -280,6 +280,9 @@ export async function computeTextkitLayout(
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
+      // Default weight for variable fonts
+      fontWeight: 400,
+      fontStyle: 'normal',
     },
   }];
 
@@ -368,36 +371,22 @@ export async function computeTextkitLayout(
                 // The font array may contain multiple fonts for fallback
                 const runFonts = run.attributes?.font;
                 const primaryFont = runFonts?.[0];
-                let fontWeight = 400;
-                let fontStyle = 'normal';
-                
-                // Check if the primary font is any of the bold fonts
-                const boldFonts = [
-                  fonts.bold,
-                  fonts.boldItalic,
-                  fonts.notoSansSCBold,
-                  fonts.notoSansTCBold,
-                  fonts.notoSansJPBold,
-                  fonts.notoSansKRBold,
-                ];
-                
-                const italicFonts = [
-                  fonts.italic,
-                  fonts.boldItalic,
-                ];
-                
-                if (boldFonts.includes(primaryFont)) {
-                  fontWeight = 700;
-                }
-                if (italicFonts.includes(primaryFont)) {
-                  fontStyle = 'italic';
-                }
+                // With variable fonts, get weight and style from run attributes
+                let fontWeight = (run.attributes as any)?.fontWeight || 400;
+                let fontStyle = (run.attributes as any)?.fontStyle || 'normal';
                 
                 // Include all CJK and emoji fonts in the font family for comprehensive fallback
                 const fontFamily = '"Roboto", "Noto Sans SC", "Noto Sans TC", "Noto Sans JP", "Noto Sans KR", "Noto Color Emoji", sans-serif';
+                
+                // Build font string with proper weight and style
                 const fontString = fontStyle === 'italic' 
                   ? `italic ${fontWeight} ${fontSize}px ${fontFamily}`
                   : `${fontWeight} ${fontSize}px ${fontFamily}`;
+                
+                // Debug log to check font settings
+                if (fontWeight !== 400 || fontStyle !== 'normal') {
+                  console.log(`Font: weight=${fontWeight}, style=${fontStyle}, string="${fontString}"`);
+                }
                 
                 lines.push({
                   text,
@@ -454,6 +443,9 @@ export async function computeTextkitLayoutWithPaths(
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
+      // Store the intended weight for variable fonts
+      fontWeight: range.isBold ? 700 : 400,
+      fontStyle: range.isItalic ? 'italic' : 'normal',
     },
   })) : [{
     start: 0,
@@ -463,6 +455,9 @@ export async function computeTextkitLayoutWithPaths(
       fontSize,
       color: 'black',
       hyphenationFactor: 0, // Disable hyphenation
+      // Default weight for variable fonts
+      fontWeight: 400,
+      fontStyle: 'normal',
     },
   }];
 
