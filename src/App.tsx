@@ -12,6 +12,7 @@ import { LayoutCanvas } from './layout/LayoutCanvas';
 import { TextkitTextCanvas } from './layout/TextkitTextCanvas';
 import { TextkitPathCanvas } from './layout/TextkitPathCanvas';
 import { TextkitRenderCanvas } from './layout/TextkitRenderCanvas';
+import { FontkitCanvas } from './layout/FontkitCanvas';
 import { computeLayout, Layout } from './layout/layout';
 import { Html2CanvasRenderer } from './layout/Html2CanvasRenderer';
 import { useCheckboxChange } from './useCheckboxChange';
@@ -31,7 +32,7 @@ export default function App() {
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
   const [lineBreaker, setLineBreaker] = useState<'default' | 'custom' | 'simple'>('simple');
-  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('textkit-path');
+  const [layoutMethod, onChangeLayoutMethod] = useRadioChange('fontkit');
 
   const content = editorState.getCurrentContent();
   const editorRef = useRef<HTMLDivElement>(null);
@@ -124,13 +125,14 @@ export default function App() {
         console.log(`DOM layout took ${endTime - startTime}ms`);
       } else if (
         layoutMethod === 'textkit-text' ||
-        layoutMethod === 'textkit-path'
+        layoutMethod === 'textkit-path' ||
+        layoutMethod === 'fontkit'
       ) {
-        // Use actual editor dimensions for textkit layout
+        // Use actual editor dimensions for textkit/fontkit layout
         const width = editorRef.current.clientWidth;
         const height = editorRef.current.clientHeight;
 
-        console.log('Editor dimensions for textkit:', width, 'x', height);
+        console.log('Editor dimensions for textkit/fontkit:', width, 'x', height);
 
         setLayout({ width, height, lines: [] });
       }
@@ -250,6 +252,17 @@ export default function App() {
               />
               textkit + glyph.render()
             </label>
+            <br />
+            <label>
+              <input
+                type="radio"
+                name="layoutMethod"
+                value="fontkit"
+                checked={layoutMethod === 'fontkit'}
+                onChange={onChangeLayoutMethod}
+              />
+              fontkit only + manual wrap
+            </label>
           </fieldset>
         </li>
       </ul>
@@ -302,6 +315,16 @@ export default function App() {
                 showOutlines={showOutlines}
                 editorState={editorState}
                 useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+              />
+            )
+          ) : layoutMethod === 'fontkit' ? (
+            layout && (
+              <FontkitCanvas
+                width={layout.width}
+                height={layout.height}
+                text={plainText}
+                showOutlines={showOutlines}
+                editorState={editorState}
               />
             )
           ) : null}
@@ -360,6 +383,16 @@ export default function App() {
               showOutlines={showOutlines}
               editorState={editorState}
               useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+            />
+          )
+        ) : layoutMethod === 'fontkit' ? (
+          layout && (
+            <FontkitCanvas
+              width={layout.width}
+              height={layout.height}
+              text={plainText}
+              showOutlines={showOutlines}
+              editorState={editorState}
             />
           )
         ) : null}
