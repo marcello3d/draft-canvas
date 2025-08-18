@@ -6,6 +6,9 @@ import {
   Editor,
   EditorState,
   RichUtils,
+  Modifier,
+  CompositeDecorator,
+  ContentBlock,
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import { LayoutCanvas } from './layout/LayoutCanvas';
@@ -19,19 +22,95 @@ import { useCheckboxChange } from './useCheckboxChange';
 import { useRadioChange, LayoutMethod } from './useRadioChange';
 import classNames from 'classnames';
 
+// Component for rendering line break spans
+const LineBreakSpan: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <span className={styles.lineBreak}>{children}</span>;
+};
+
+// Strategy function to find word wrap positions when lines exceed 15 characters
+const findLineBreakEntities = (
+  contentBlock: ContentBlock,
+  callback: (start: number, end: number) => void,
+) => {
+  const text = contentBlock.getText();
+  let currentLineStart = 0;
+  
+  while (currentLineStart < text.length) {
+    // Check if there's more than 15 characters remaining
+    if (currentLineStart + 15 >= text.length) {
+      // Line is 15 chars or less, no wrapping needed
+      break;
+    }
+    
+    // Look for the last space before or at position 15 from current start
+    const searchEnd = currentLineStart + 15;
+    let lastSpaceIndex = -1;
+    
+    // Find the last space in the range
+    for (let i = currentLineStart; i <= searchEnd && i < text.length; i++) {
+      if (text[i] === ' ') {
+        lastSpaceIndex = i;
+      }
+    }
+    
+    // If we found a space before position 15, mark it for line break
+    if (lastSpaceIndex !== -1 && lastSpaceIndex > currentLineStart) {
+      callback(lastSpaceIndex, lastSpaceIndex + 1);
+      currentLineStart = lastSpaceIndex + 1;
+    } else {
+      // No space found in first 15 chars, look for next space after position 15
+      let nextSpaceIndex = -1;
+      for (let i = searchEnd + 1; i < text.length; i++) {
+        if (text[i] === ' ') {
+          nextSpaceIndex = i;
+          break;
+        }
+      }
+      
+      if (nextSpaceIndex !== -1) {
+        // Found a space after position 15, break there
+        callback(nextSpaceIndex, nextSpaceIndex + 1);
+        currentLineStart = nextSpaceIndex + 1;
+      } else {
+        // No more spaces in the text, done
+        break;
+      }
+    }
+  }
+};
+
+// Create decorator
+const lineBreakDecorator = new CompositeDecorator([
+  {
+    strategy: findLineBreakEntities,
+    component: LineBreakSpan,
+  },
+]);
+
 export default function App() {
-  const [editorState, setEditorState] = React.useState(() =>
+  const [editorState, setRawEditorState] = React.useState(() =>
     EditorState.createWithContent(
       ContentState.createFromText(
         "Hello this is some wrapping text I'm trying to start with",
       ),
+      lineBreakDecorator,
     ),
+  );
+  const setEditorState = useCallback(
+    (newState: EditorState) => {
+      // The decorator automatically handles the line break rendering
+      // Just update the state
+      setRawEditorState(newState);
+    },
+    [setRawEditorState],
   );
 
   const [characterLevel, onChangeCharacterLevel] = useCheckboxChange(true);
   const [showTextEditor, onChangeShowOverlap] = useCheckboxChange(true);
   const [showOutlines, onChangeShowOutlines] = useCheckboxChange(true);
-  const [lineBreaker, setLineBreaker] = useState<'default' | 'custom' | 'simple'>('simple');
+  const [lineBreaker, setLineBreaker] = useState<
+    'default' | 'custom' | 'simple'
+  >('simple');
   const [layoutMethod, onChangeLayoutMethod] = useRadioChange('fontkit');
 
   const content = editorState.getCurrentContent();
@@ -132,7 +211,12 @@ export default function App() {
         const width = editorRef.current.clientWidth;
         const height = editorRef.current.clientHeight;
 
-        console.log('Editor dimensions for textkit/fontkit:', width, 'x', height);
+        console.log(
+          'Editor dimensions for textkit/fontkit:',
+          width,
+          'x',
+          height,
+        );
 
         setLayout({ width, height, lines: [] });
       }
@@ -183,10 +267,14 @@ export default function App() {
         </li>
         <li>
           <label>
-            Line breaker: 
-            <select 
-              value={lineBreaker} 
-              onChange={(e) => setLineBreaker(e.target.value as 'default' | 'custom' | 'simple')}
+            Line breaker:
+            <select
+              value={lineBreaker}
+              onChange={(e) =>
+                setLineBreaker(
+                  e.target.value as 'default' | 'custom' | 'simple',
+                )
+              }
               style={{ marginLeft: '8px' }}
             >
               <option value="default">Default (textkit)</option>
@@ -292,7 +380,9 @@ export default function App() {
                 text={plainText}
                 showOutlines={showOutlines}
                 editorState={editorState}
-                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+                useCustomLineBreaker={
+                  lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+                }
               />
             )
           ) : layoutMethod === 'textkit-path' ? (
@@ -303,7 +393,9 @@ export default function App() {
                 text={plainText}
                 showOutlines={showOutlines}
                 editorState={editorState}
-                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+                useCustomLineBreaker={
+                  lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+                }
               />
             )
           ) : layoutMethod === 'textkit-render' ? (
@@ -314,7 +406,9 @@ export default function App() {
                 text={plainText}
                 showOutlines={showOutlines}
                 editorState={editorState}
-                useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+                useCustomLineBreaker={
+                  lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+                }
               />
             )
           ) : layoutMethod === 'fontkit' ? (
@@ -360,7 +454,9 @@ export default function App() {
               text={plainText}
               showOutlines={showOutlines}
               editorState={editorState}
-              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+              useCustomLineBreaker={
+                lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+              }
             />
           )
         ) : layoutMethod === 'textkit-path' ? (
@@ -371,7 +467,9 @@ export default function App() {
               text={plainText}
               showOutlines={showOutlines}
               editorState={editorState}
-              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+              useCustomLineBreaker={
+                lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+              }
             />
           )
         ) : layoutMethod === 'textkit-render' ? (
@@ -382,7 +480,9 @@ export default function App() {
               text={plainText}
               showOutlines={showOutlines}
               editorState={editorState}
-              useCustomLineBreaker={lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'}
+              useCustomLineBreaker={
+                lineBreaker === 'simple' ? 'simple' : lineBreaker === 'custom'
+              }
             />
           )
         ) : layoutMethod === 'fontkit' ? (

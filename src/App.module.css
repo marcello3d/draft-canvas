@@ -48,3 +48,8 @@
   bottom: 0;
   right: 0;
 }
+
+.lineBreak::after {
+  content: '\A';
+  white-space: pre;
+}
